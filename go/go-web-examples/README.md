@@ -13,5 +13,5 @@ https://gowebexamples.com/
 - [ ] Middleware (Advanced)
 - [x] Sessions
 - [ ] JSON
-- [ ] Websockets
+- [x] Websockets
 - [ ] Password Hashing
