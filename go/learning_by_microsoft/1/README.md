@@ -1,0 +1,2 @@
+- [問題](https://docs.microsoft.com/ja-jp/learn/modules/go-data-types/5-challenge)
+- [解答](https://docs.microsoft.com/ja-jp/learn/modules/go-data-types/6-solution)

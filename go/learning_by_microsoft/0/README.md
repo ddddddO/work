@@ -1,0 +1,3 @@
+- [問題](https://docs.microsoft.com/ja-jp/learn/modules/go-control-flow/5-challenge)
+    - 「平方根を推測する」が自分のロジックがミスってる。
+- [解答](https://docs.microsoft.com/ja-jp/learn/modules/go-control-flow/6-solution)
