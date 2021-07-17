@@ -1,0 +1,1 @@
+/mnt/c/DEV/workspace/GO/src/github.com/ddddddO/work/rust/learning_by_microsoft/rust-learning-path/hello-cargo/target/debug/hello-cargo: /mnt/c/DEV/workspace/GO/src/github.com/ddddddO/work/rust/learning_by_microsoft/rust-learning-path/hello-cargo/src/main.rs
