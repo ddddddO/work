@@ -26,4 +26,11 @@ func main() {
 	// [0 1 0 9 0 255 0 0]
 
 	// bb[7] = 256 // ./main.go:28:8: constant 256 overflows byte
+
+	opCode := 0x08<<10 | 0x0006
+	fmt.Println(opCode)
+	// 8198
+
+	fmt.Println(byte(opCode))
+	// 6
 }
