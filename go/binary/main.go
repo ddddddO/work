@@ -56,6 +56,34 @@ func main() {
 	// writeBigEndianBufferOnly
 	// [32 0 255 0 0 0 0 0 1]
 	//
+
+	var data3 = struct {
+		Param1 uint8
+		Param2 uint16
+		Param3 uint16
+	}{
+		Param1: 0x0020, // 32
+		Param2: 0x00ff,
+		Param3: 0x0001,
+	}
+	WriteData(data3)
+	// writeLittleEndian
+	// [0 0 0 0]
+	// [0 0 0 0 32 255 0 1 0]
+	//
+
+	// writeBigEndian
+	// [0 0 0 0]
+	// [0 0 0 0 32 0 255 0 1]
+	//
+
+	// writeLittleEndianBufferOnly
+	// [32 255 0 1 0]
+	//
+
+	// writeBigEndianBufferOnly
+	// [32 0 255 0 1]
+	//
 }
 
 func WriteData(data interface{}) {
