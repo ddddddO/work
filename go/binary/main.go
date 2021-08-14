@@ -59,8 +59,8 @@ func main() {
 
 	var data3 = struct {
 		Param1 uint8
-		Param2 uint16
-		Param3 uint16
+		Param2 uint8
+		Param3 uint8
 	}{
 		Param1: 0x0020, // 32
 		Param2: 0x00ff,
@@ -69,20 +69,49 @@ func main() {
 	WriteData(data3)
 	// writeLittleEndian
 	// [0 0 0 0]
-	// [0 0 0 0 32 255 0 1 0]
+	// [0 0 0 0 32 255 1]
 	//
 
 	// writeBigEndian
 	// [0 0 0 0]
-	// [0 0 0 0 32 0 255 0 1]
+	// [0 0 0 0 32 255 1]
 	//
 
 	// writeLittleEndianBufferOnly
-	// [32 255 0 1 0]
+	// [32 255 1]
 	//
 
 	// writeBigEndianBufferOnly
-	// [32 0 255 0 1]
+	// [32 255 1]
+	//
+
+	// NOTE: 一番わかりやすい
+	var data4 = struct {
+		Param1 uint32
+		Param2 uint32
+		Param3 uint32
+	}{
+		Param1: 0x0020, // 32
+		Param2: 0x00ff,
+		Param3: 0x0001,
+	}
+	WriteData(data4)
+	// writeLittleEndian
+	// [0 0 0 0]
+	// [0 0 0 0 32 0 0 0 255 0 0 0 1 0 0 0]
+	//
+
+	// writeBigEndian
+	// [0 0 0 0]
+	// [0 0 0 0 0 0 0 32 0 0 0 255 0 0 0 1]
+	//
+
+	// writeLittleEndianBufferOnly
+	// [32 0 0 0 255 0 0 0 1 0 0 0]
+	//
+
+	// writeBigEndianBufferOnly
+	// [0 0 0 32 0 0 0 255 0 0 0 1]
 	//
 }
 
