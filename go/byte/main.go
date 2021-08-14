@@ -30,7 +30,8 @@ func main() {
 	opCode := 0x08<<10 | 0x0006
 	fmt.Println(opCode)
 	// 8198
-
+	fmt.Println(opCode >> 8) // 8198 / 256 = 32.0234375
+	// 32
 	fmt.Println(byte(opCode))
 	// 6
 }
