@@ -124,7 +124,7 @@ func newFDBluetooth() (int, error) {
 
 	req := devListRequest{devNum: 16}
 	if err = ioctl(uintptr(fd), hciGetDeviceList, uintptr(unsafe.Pointer(&req))); err != nil {
-		panic(err)
+		return -1, err
 	}
 
 	var e error
