@@ -160,6 +160,29 @@ func newFDBluetooth() (int, error) {
 	return fd, e
 }
 
+// HCI packet
+//   0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30
+// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+// |                OpCode(2 bytes)                |Parameter(total length)|     Parameter 0    |
+// |        OCF(10 bits)         |   OGF(6 bits)   |                       |                    |
+// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+// |                  Parameter 1                  |                 Parameter 2                |
+// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+//                                                 .
+//                                                 .
+//                                                 .
+// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+// |          Parameter n-1            |                    Parameter n                         |
+// +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+//
+// HCI: Host Controller Interface. PC等のホストとコントローラ(Bluetoothモジュール)の間で通信を行うインターフェース。
+// OCF: OpCode Command Field
+// OGF: OpCode Group Field
+// Parameter1 ~ n: max 255 bytes
+// refs:
+// - 「Bluetooth 無線でワイヤレスI/O」p41
+// - https://www.mouser.it/pdfdocs/bluetooth-Core-v50.pdf p732が詳しそう
+
 func newLEReadAdvertisingChannelTxPower() ([]byte, int) {
 	LEReadAdvertisingChannelTxPower := make([]byte, 64)
 	LEReadAdvertisingChannelTxPower[0] = 1
@@ -205,13 +228,13 @@ func newLESetAdvertisingData() ([]byte, int) {
 	LESetAdvertisingData[24] = 1
 	LESetAdvertisingData[26] = 7
 	LESetAdvertisingData[27] = 9
-	LESetAdvertisingData[28] = 71
-	LESetAdvertisingData[29] = 111
+	LESetAdvertisingData[28] = 71  // 'G'
+	LESetAdvertisingData[29] = 111 // 'o'
 
-	LESetAdvertisingData[30] = 112
-	LESetAdvertisingData[31] = 104
-	LESetAdvertisingData[32] = 101
-	LESetAdvertisingData[33] = 114
+	LESetAdvertisingData[30] = 112 // 'p'
+	LESetAdvertisingData[31] = 104 // 'h'
+	LESetAdvertisingData[32] = 101 // 'e'
+	LESetAdvertisingData[33] = 114 // 'r'
 	return LESetAdvertisingData, 32
 }
 
