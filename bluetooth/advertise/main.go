@@ -203,6 +203,26 @@ func newLESetAdvertisingParameters() ([]byte, int) {
 	return LESetAdvertisingParameters, 15
 }
 
+// https://www.mouser.it/pdfdocs/bluetooth-Core-v50.pdf p731
+// https://www.wdic.org/w/WDIC/HCI%20(Bluetooth)#xE3x83x95xE3x83xACxE3x83xBCxE3x83xA0xE3x81xAExE6xA7x8BxE9x80xA0
+// http://www.yts.rdy.jp/pic/GB002/hcip.html
+func newHCIData(b []byte) []byte {
+	const typeHCICommand = byte(0x01)
+
+	// OpCode(一旦：HCI_LE_Set_Advertising_Dataの)
+	opCode := make([]byte, 2)
+	opCode[0] = byte(0x08) // TODO: OCFにあたるが、ここが10bits
+	opCode[1] = byte()     // TODO: OCGにあたるが、ここが6bits
+}
+
+// NOTE: Bluetoothデバイスの検知時に画面に出力される文字列を設定しているので、これをデバッグ用に使う。
+// https://www.mouser.it/pdfdocs/bluetooth-Core-v50.pdf p1256
+// OCF: 0x0008
+// OCG: 32?
+// 構造：
+// HCI_LE_Set_Advertising_Data
+//   Advertising_Data_Length: 0x00 – 0x1F
+//   Advertising_Data: 31bytes.ref p2086
 func newLESetAdvertisingData() ([]byte, int) {
 	LESetAdvertisingData := make([]byte, 64)
 	LESetAdvertisingData[0] = 1
