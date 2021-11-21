@@ -1,0 +1,2 @@
+- xxdのようなツールを作ってみる
+    - https://www.glamenv-septzen.net/view/1224
