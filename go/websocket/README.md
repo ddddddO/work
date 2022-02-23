@@ -1,21 +1,21 @@
 # websocket試し
 
 ## server <-> clientで双方向通信
-- server
+- server起動
 
 ```console
 cd cmd/server
 go run main.go
 ```
 
-- client1
+- client1起動
 
 ```console
 cd cmd/client
 go run main.go
 ```
 
-- client2
+- client2起動
 
 ```console
 cd cmd/client
