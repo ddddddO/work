@@ -4,8 +4,12 @@ import (
 	"fmt"
 )
 
-// ref: https://go.dev/doc/tutorial/generics
 func main() {
+	tutorial()
+}
+
+// ref: https://go.dev/doc/tutorial/generics
+func tutorial() {
 	// Initialize a map for the integer values
 	ints := map[string]int64{
 		"first":  34,
