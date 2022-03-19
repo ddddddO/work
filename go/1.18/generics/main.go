@@ -6,6 +6,20 @@ import (
 
 func main() {
 	tutorial()
+	fmt.Println("---")
+
+	ints := []int64{-3, -2, -1}
+	fmt.Println(sum(ints))
+	uints := []uint64{1, 2, 3}
+	fmt.Println(sum(uints))
+}
+
+func sum[V1 int64 | uint64](v1 []V1) V1 {
+	var ret V1
+	for _, v := range v1 {
+		ret += v
+	}
+	return ret
 }
 
 // ref: https://go.dev/doc/tutorial/generics
