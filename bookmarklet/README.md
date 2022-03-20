@@ -1,0 +1,3 @@
+- https://web-camp.io/magazine/archives/83740
+- https://userjs.up.seesaa.net/js/bookmarklet.html
+    - javascriptをbook maklet用に変換
