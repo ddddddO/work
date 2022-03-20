@@ -1,17 +1,12 @@
-(function(){
-    const date = new Date();
-    alert(date.toLocaleString());
-
-    const text = date.toLocaleString();
-    const pre = document.createElement('pre');
+(function(dc, dt){
+    var txt = dt.toLocaleString(), pre = dc.createElement('pre');
+    console.log(txt);
 
     pre.style.userSelect = 'auto';
-    pre.textContent = text;
+    pre.textContent = txt;
 
-    document.body.appendChild(pre);
-    document.getSelection().selectAllChildren(pre);
-    const result = document.execCommand('copy');
-
-    document.body.removeChild(pre);
-    return result;
-  })()
+    dc.body.appendChild(pre);
+    dc.getSelection().selectAllChildren(pre);
+    dc.execCommand('copy');
+    dc.body.removeChild(pre);
+  })(document, new Date())

@@ -3,3 +3,5 @@
     - javascriptをbook maklet用に変換
 - https://maku.blog/p/buk5i2o/
     - クリップボードへのコピー
+- https://qiita.com/xtetsuji/items/e8b61bb39c41b7a9345e
+    - tips
