@@ -5,3 +5,10 @@
     - クリップボードへのコピー
 - https://qiita.com/xtetsuji/items/e8b61bb39c41b7a9345e
     - tips
+- bookmarkletの登録文字数には限界がある。
+    - そのため、bookmarklet用scriptから外部のJavaScriptを読み込んで使うようにすると解決できる。
+    - https://www.jsdelivr.com/?docs=gh のCDNから、bookmarklet用scriptからJavaScriptをDLして関数を呼び出す。
+        - 特別な操作は無く、上記サイトのurlフォーマットで読み込ませるよう記述すればいい。
+    - 以下がサンプル実装
+        - [copy_date/copy_date.js](copy_date/copy_date.js) # 呼び出されるJavaScript
+        - [copy_date/call_copy_date.js](copy_date/call_copy_date.js) # 上記のJavaScriptを呼び出す
