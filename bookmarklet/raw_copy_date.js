@@ -1,4 +1,4 @@
-(function(dc, dt){
+function copyDate(dc, dt){
     var txt = dt.toLocaleString(), pre = dc.createElement('pre');
     console.log(txt);
 
@@ -9,4 +9,6 @@
     dc.getSelection().selectAllChildren(pre);
     dc.execCommand('copy');
     dc.body.removeChild(pre);
-  })(document, new Date())
+};
+
+copyDate(document, new Date());
