@@ -1,3 +1,5 @@
 - https://web-camp.io/magazine/archives/83740
 - https://userjs.up.seesaa.net/js/bookmarklet.html
     - javascriptをbook maklet用に変換
+- https://maku.blog/p/buk5i2o/
+    - クリップボードへのコピー
