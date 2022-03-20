@@ -12,3 +12,4 @@
     - 以下がサンプル実装
         - [copy_date/copy_date.js](copy_date/copy_date.js) # 呼び出されるJavaScript
         - [copy_date/call_copy_date.js](copy_date/call_copy_date.js) # 上記のJavaScriptを呼び出す
+        - [copy_date/raw_copy_date.js](copy_date/raw_copy_date.js) # 素のscript。call_copy_date.jsではなく、こちらをbookmarkletに登録した方がいいかも
