@@ -1,0 +1,2 @@
+- https://zenn.dev/mizchi/articles/zig-first-impression
+  - https://ziglearn.org/ を読む
