@@ -56,30 +56,15 @@ fn run(
 
 fn fizzbuzz(allocator: Allocator, i: u32) ![]u8 {
     if ((i % 3 == 0) and (i % 5 == 0)) {
-        const ret = try std.fmt.allocPrint(
-            allocator,
-            "FIZZ-BUZZ: {d}",
-            .{i},
-        );
-        return ret;
+        return std.fmt.allocPrint(allocator, "FIZZ-BUZZ: {d}", .{i});
     }
 
     if (i % 3 == 0) {
-        const ret = try std.fmt.allocPrint(
-            allocator,
-            "FIZZ: {d}",
-            .{i},
-        );
-        return ret;
+        return std.fmt.allocPrint(allocator, "FIZZ: {d}", .{i});
     }
 
     if (i % 5 == 0) {
-        const ret = try std.fmt.allocPrint(
-            allocator,
-            "BUZZ: {d}",
-            .{i},
-        );
-        return ret;
+        return std.fmt.allocPrint(allocator, "BUZZ: {d}", .{i});
     }
 
     return "";
