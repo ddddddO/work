@@ -1,4 +1,5 @@
 const std = @import("std");
+const Allocator = std.mem.Allocator;
 
 pub fn main() anyerror!void {
     const allocator = std.heap.page_allocator;
@@ -29,7 +30,7 @@ const ArgumentError = error{
 };
 
 fn run(
-    allocator: anytype,
+    allocator: Allocator,
     args: [][:0]u8,
 ) anyerror!void {
     if (args.len != 2) {
@@ -48,14 +49,12 @@ fn run(
     while (i <= max) : (i += 1) {
         const ret = try fizzbuzz(allocator, i);
         defer allocator.free(ret);
-        if (ret.len == 0) {
-            continue;
-        }
+        if (ret.len == 0) continue;
         try writer.print("{s}\n", .{ret});
     }
 }
 
-fn fizzbuzz(allocator: anytype, i: u32) ![]u8 {
+fn fizzbuzz(allocator: Allocator, i: u32) ![]u8 {
     if ((i % 3 == 0) and (i % 5 == 0)) {
         const ret = try std.fmt.allocPrint(
             allocator,
