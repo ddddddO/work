@@ -8,12 +8,14 @@ pub fn main() anyerror!void {
     const prog = args[0];
     if (args.len != 2) {
         std.log.err("usage: {s} [max number]", .{prog});
-        return; // TODO: exit status 1
+        allocator.free(args);
+        std.os.exit(1);
     }
 
     const max = std.fmt.parseUnsigned(u32, args[1], 10) catch |err| {
         std.log.err("specify positive integer for argument. error: {s}", .{err});
-        return; // TODO: exit status 1
+        allocator.free(args);
+        std.os.exit(1);
     };
 
     const stdout = std.io.getStdOut().writer();
