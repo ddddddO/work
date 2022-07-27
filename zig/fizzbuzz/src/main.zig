@@ -5,28 +5,35 @@ pub fn main() anyerror!void {
     const args = try std.process.argsAlloc(allocator);
     defer allocator.free(args);
 
-    const prog = args[0];
-    if (args.len != 2) {
-        std.log.err("usage: {s} [max number]", .{prog});
-        allocator.free(args);
-        std.os.exit(1);
-    }
-
-    const max = std.fmt.parseUnsigned(u32, args[1], 10) catch |err| {
-        std.log.err("specify positive integer for argument. error: {s}", .{err});
-        allocator.free(args);
-        std.os.exit(1);
-    };
-
-    const stdout = std.io.getStdOut().writer();
-    run(allocator, stdout, max) catch |err| {
-        std.log.err("run error. error: {s}", .{err});
+    run(allocator, args) catch |err| {
+        std.log.err("run error. {s}", .{err});
         allocator.free(args);
         std.os.exit(1);
     };
 }
 
-fn run(allocator: anytype, writer: anytype, max: u32) anyerror!void {
+const RunError = error{
+    InvalidArgumentCount,
+    InvalidArgument,
+};
+
+fn run(
+    allocator: anytype,
+    args: [][:0]u8,
+) anyerror!void {
+    const prog = args[0];
+    if (args.len != 2) {
+        std.log.err("usage: {s} [max number]", .{prog});
+        return RunError.InvalidArgumentCount;
+    }
+
+    const max = std.fmt.parseUnsigned(u32, args[1], 10) catch |err| {
+        std.log.err("specify positive integer for argument. error: {s}", .{err});
+        return RunError.InvalidArgument;
+    };
+
+    const writer = std.io.getStdOut().writer();
+
     try writer.print("{s}-MAX:{d} start!\n", .{ "fizzbuzz", max });
 
     var i: u32 = 0;
