@@ -74,3 +74,42 @@ fn fizzbuzz(allocator: anytype, i: u32) []u8 {
 
     return "";
 }
+
+test "success" {
+    const allocator = std.heap.page_allocator;
+
+    {
+        const fizz_num = 3;
+        const fizz_ret = fizzbuzz(allocator, fizz_num);
+        defer allocator.free(fizz_ret);
+        try std.testing.expect(std.mem.eql(u8, "FIZZ: 3", fizz_ret));
+    }
+
+    {
+        const buzz_num = 5;
+        const buzz_ret = fizzbuzz(allocator, buzz_num);
+        defer allocator.free(buzz_ret);
+        try std.testing.expect(std.mem.eql(u8, "BUZZ: 5", buzz_ret));
+    }
+
+    {
+        const fizzbuzz_num = 15;
+        const fizzbuzz_ret = fizzbuzz(allocator, fizzbuzz_num);
+        defer allocator.free(fizzbuzz_ret);
+        try std.testing.expect(std.mem.eql(u8, "FIZZ-BUZZ: 15", fizzbuzz_ret));
+    }
+
+    {
+        const zero_num = 0;
+        const zero_ret = fizzbuzz(allocator, zero_num);
+        defer allocator.free(zero_ret);
+        try std.testing.expect(std.mem.eql(u8, "FIZZ-BUZZ: 0", zero_ret));
+    }
+
+    {
+        const num = 128;
+        const ret = fizzbuzz(allocator, num);
+        defer allocator.free(ret);
+        try std.testing.expect(std.mem.eql(u8, "", ret));
+    }
+}
