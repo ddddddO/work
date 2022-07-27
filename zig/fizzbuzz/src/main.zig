@@ -5,10 +5,19 @@ pub fn main() anyerror!void {
     const args = try std.process.argsAlloc(allocator);
     defer allocator.free(args);
 
-    // TODO: ここでエラーハンドリングしたい
-    // ref: https://ziglang.org/documentation/master/#try
     run(allocator, args) catch |err| {
-        std.log.err("run error. {s}", .{err});
+        switch (err) {
+            RunError.InvalidArgumentCount => {
+                const prog = args[0];
+                std.log.err("usage: {s} [max number]", .{prog});
+            },
+            RunError.InvalidArgument => {
+                std.log.err("specify positive integer for argument.", .{});
+            },
+            else => {
+                std.log.err("run error. {s}", .{err});
+            },
+        }
         allocator.free(args);
         std.os.exit(1);
     };
@@ -23,14 +32,11 @@ fn run(
     allocator: anytype,
     args: [][:0]u8,
 ) anyerror!void {
-    const prog = args[0];
     if (args.len != 2) {
-        std.log.err("usage: {s} [max number]", .{prog});
         return RunError.InvalidArgumentCount;
     }
 
-    const max = std.fmt.parseUnsigned(u32, args[1], 10) catch |err| {
-        std.log.err("specify positive integer for argument. error: {s}", .{err});
+    const max = std.fmt.parseUnsigned(u32, args[1], 10) catch {
         return RunError.InvalidArgument;
     };
 
