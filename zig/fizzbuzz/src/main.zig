@@ -5,6 +5,8 @@ pub fn main() anyerror!void {
     const args = try std.process.argsAlloc(allocator);
     defer allocator.free(args);
 
+    // TODO: ここでエラーハンドリングしたい
+    // ref: https://ziglang.org/documentation/master/#try
     run(allocator, args) catch |err| {
         std.log.err("run error. {s}", .{err});
         allocator.free(args);
