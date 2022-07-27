@@ -87,7 +87,7 @@ fn fizzbuzz(allocator: anytype, i: u32) ![]u8 {
 }
 
 test "success" {
-    const allocator = std.heap.page_allocator;
+    const allocator = std.testing.allocator;
 
     {
         const fizz_num = 3;
