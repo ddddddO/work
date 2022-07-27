@@ -19,7 +19,11 @@ pub fn main() anyerror!void {
     };
 
     const stdout = std.io.getStdOut().writer();
-    try run(allocator, stdout, max);
+    run(allocator, stdout, max) catch |err| {
+        std.log.err("run error. error: {s}", .{err});
+        allocator.free(args);
+        std.os.exit(1);
+    };
 }
 
 fn run(allocator: anytype, writer: anytype, max: u32) anyerror!void {
