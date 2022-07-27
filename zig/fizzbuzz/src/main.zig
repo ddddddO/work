@@ -7,11 +7,11 @@ pub fn main() anyerror!void {
 
     run(allocator, args) catch |err| {
         switch (err) {
-            RunError.InvalidArgumentCount => {
+            ArgumentError.InvalidCount => {
                 const prog = args[0];
                 std.log.err("usage: {s} [max number]", .{prog});
             },
-            RunError.InvalidArgument => {
+            ArgumentError.Invalid => {
                 std.log.err("specify positive integer for argument.", .{});
             },
             else => {
@@ -23,9 +23,9 @@ pub fn main() anyerror!void {
     };
 }
 
-const RunError = error{
-    InvalidArgumentCount,
-    InvalidArgument,
+const ArgumentError = error{
+    InvalidCount,
+    Invalid,
 };
 
 fn run(
@@ -33,11 +33,11 @@ fn run(
     args: [][:0]u8,
 ) anyerror!void {
     if (args.len != 2) {
-        return RunError.InvalidArgumentCount;
+        return ArgumentError.InvalidCount;
     }
 
     const max = std.fmt.parseUnsigned(u32, args[1], 10) catch {
-        return RunError.InvalidArgument;
+        return ArgumentError.Invalid;
     };
 
     const writer = std.io.getStdOut().writer();
