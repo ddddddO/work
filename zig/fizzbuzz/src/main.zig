@@ -15,26 +15,62 @@ pub fn main() anyerror!void {
         std.log.err("specify positive integer for argument. error: {s}", .{err});
         return; // TODO: exit status 1
     };
+
     const stdout = std.io.getStdOut().writer();
-    try fizzbuzz(stdout, max);
+    try run(allocator, stdout, max);
 }
 
-fn fizzbuzz(writer: anytype, max: u32) anyerror!void {
+fn run(allocator: anytype, writer: anytype, max: u32) anyerror!void {
     try writer.print("{s}-MAX:{d} start!\n", .{ "fizzbuzz", max });
 
-    var i: u16 = 0;
+    var i: u32 = 0;
     while (i <= max) : (i += 1) {
-        if ((i % 3 == 0) and (i % 5 == 0)) {
-            try writer.print("FIZZ-BUZZ: {d}\n", .{i});
+        const ret = fizzbuzz(allocator, i);
+        defer allocator.free(ret);
+        if (ret.len == 0) {
             continue;
         }
-        if (i % 3 == 0) {
-            try writer.print("FIZZ: {d}\n", .{i});
-            continue;
-        }
-        if (i % 5 == 0) {
-            try writer.print("BUZZ: {d}\n", .{i});
-            continue;
-        }
+        try writer.print("{s}\n", .{ret});
     }
+}
+
+// TODO: catch -> try に変更してerrをthrowする。
+fn fizzbuzz(allocator: anytype, i: u32) []u8 {
+    if ((i % 3 == 0) and (i % 5 == 0)) {
+        const ret = std.fmt.allocPrint(
+            allocator,
+            "FIZZ-BUZZ: {d}",
+            .{i},
+        ) catch |err| {
+            std.log.err("error: {s}\n", .{err});
+            return "";
+        };
+        return ret;
+    }
+
+    if (i % 3 == 0) {
+        const ret = std.fmt.allocPrint(
+            allocator,
+            "FIZZ: {d}",
+            .{i},
+        ) catch |err| {
+            std.log.err("error: {s}\n", .{err});
+            return "";
+        };
+        return ret;
+    }
+
+    if (i % 5 == 0) {
+        const ret = std.fmt.allocPrint(
+            allocator,
+            "BUZZ: {d}",
+            .{i},
+        ) catch |err| {
+            std.log.err("error: {s}\n", .{err});
+            return "";
+        };
+        return ret;
+    }
+
+    return "";
 }
