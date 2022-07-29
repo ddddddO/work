@@ -5,8 +5,6 @@ const Allocator = std.mem.Allocator;
 const Stream = std.net.Stream;
 
 pub fn main() anyerror!void {
-    std.log.info("Request...", .{});
-
     const allocator = std.heap.page_allocator;
     const host = "www.google.com";
     // const host = "www.yahoo.co.jp";
@@ -19,17 +17,16 @@ pub fn main() anyerror!void {
 
     defer res.deinit();
 
-    log.info("Status Line: {s}", .{res.status_line()});
-    log.info("Status Code: {s}", .{res.status_code()});
-    log.info("Status: {s}", .{res.status()});
+    const writer = std.io.getStdOut().writer();
+    try writer.print("Status Line: {s}\n", .{res.status_line()});
+    try writer.print("Status Code: {s}\n", .{res.status_code()});
+    try writer.print("Status: {s}\n", .{res.status()});
 }
 
 pub const HttpClient = struct {
     allocator: Allocator,
 
     pub fn init(allocator: Allocator) HttpClient {
-        log.debug("INIT!!", .{});
-
         return HttpClient{
             .allocator = allocator,
         };
@@ -37,7 +34,6 @@ pub const HttpClient = struct {
 
     pub fn deinit(self: HttpClient) void {
         _ = self;
-        log.debug("DEINIT!", .{});
     }
 
     pub fn req(self: HttpClient) Request {
@@ -56,8 +52,6 @@ pub const Request = struct {
         const tcp_conn = try std.net.tcpConnectToHost(self.allocator, target, 80);
         defer tcp_conn.close();
 
-        log.debug("IN Request: {s}", .{target});
-
         _ = try tcp_conn.write("GET / HTTP/1.1\r\n");
         const host_header = try std.fmt.allocPrint(self.allocator, "Host: {s}\r\n", .{target});
         defer self.allocator.free(host_header);
@@ -74,7 +68,7 @@ pub const Request = struct {
             var response_buffer: [2048]u8 = undefined;
             const len = tcp_conn.read(&response_buffer) catch 0;
             if (len == 0) {
-                log.debug("Response end.", .{});
+                // log.debug("Response end.", .{});
                 break;
             }
             const response = response_buffer[0..len];
@@ -82,12 +76,12 @@ pub const Request = struct {
 
             const end_response_1 = std.mem.eql(u8, "\r\n", response_buffer[len - 2 .. len]);
             if (end_response_1) {
-                log.debug("Response end..", .{});
+                // log.debug("Response end..", .{});
                 break;
             }
             const end_response_2 = std.mem.eql(u8, "\r\n ", response_buffer[len - 3 .. len]);
             if (end_response_2) {
-                log.debug("Response end...", .{});
+                // log.debug("Response end...", .{});
                 break;
             }
         }
@@ -140,7 +134,3 @@ pub const Response = struct {
         return self.status_line()[13..self._status_line.len];
     }
 };
-
-// test "basic test" {
-//     try std.testing.expectEqual(10, 3 + 7);
-// }
