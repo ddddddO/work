@@ -13,7 +13,9 @@ pub fn main() anyerror!void {
 
     const client = HttpClient.init(allocator);
     defer client.deinit();
-    try client.req().get(host);
+    const res = try client.req().get(host);
+    defer res.deinit();
+    log.debug("Response!!\n{s}", .{res.raw()});
 }
 
 pub const HttpClient = struct {
@@ -43,8 +45,7 @@ pub const HttpClient = struct {
 pub const Request = struct {
     allocator: Allocator,
 
-    // TODO: return Response
-    fn get(self: Request, target: []const u8) !void {
+    fn get(self: Request, target: []const u8) !Response {
         const tcp_conn = try std.net.tcpConnectToHost(self.allocator, target, 80);
         defer tcp_conn.close();
 
@@ -57,7 +58,7 @@ pub const Request = struct {
         _ = try tcp_conn.write(host_header);
         _ = try tcp_conn.write("\r\n");
 
-        const writer = std.io.getStdOut().writer();
+        var buf = std.ArrayList(u8).init(self.allocator);
         while (true) {
             var response_buffer: [2048]u8 = undefined;
             const len = tcp_conn.read(&response_buffer) catch 0;
@@ -66,7 +67,7 @@ pub const Request = struct {
                 break;
             }
             const response = response_buffer[0..len];
-            try writer.writeAll(response);
+            try buf.appendSlice(response);
 
             const end_response_1 = std.mem.eql(u8, "\r\n", response_buffer[len - 2 .. len]);
             if (end_response_1) {
@@ -79,18 +80,24 @@ pub const Request = struct {
                 break;
             }
         }
+
+        return Response{
+            .buf = buf,
+        };
     }
 };
 
-// pub const Response = struct {
-//     buf: []u8,
+pub const Response = struct {
+    buf: std.ArrayList(u8),
 
-//     pub fn init(allocator: Allocator) Response {
-//         return Response{
+    pub fn deinit(self: Response) void {
+        self.buf.deinit();
+    }
 
-//         }
-//     }
-// }
+    pub fn raw(self: Response) []u8 {
+        return self.buf.items;
+    }
+};
 
 // test "basic test" {
 //     try std.testing.expectEqual(10, 3 + 7);
