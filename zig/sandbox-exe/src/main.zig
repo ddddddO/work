@@ -18,7 +18,10 @@ pub fn main() anyerror!void {
         .get(host);
 
     defer res.deinit();
-    log.debug("Response!!\n{s}", .{res.raw()});
+
+    log.info("Status Line: {s}", .{res.status_line()});
+    log.info("Status Code: {s}", .{res.status_code()});
+    log.info("Status: {s}", .{res.status()});
 }
 
 pub const HttpClient = struct {
@@ -89,9 +92,7 @@ pub const Request = struct {
             }
         }
 
-        return Response{
-            .buf = buf,
-        };
+        return Response.init(buf);
     }
 
     fn setHeader(self: *Request, header: []const u8) *Request {
@@ -102,6 +103,22 @@ pub const Request = struct {
 
 pub const Response = struct {
     buf: std.ArrayList(u8),
+    _status_line: []u8,
+
+    pub fn init(buf: std.ArrayList(u8)) Response {
+        var first_line: []u8 = undefined;
+        for (buf.items) |item, i| {
+            if ((item == '\r') and (buf.items[i + 1] == '\n')) {
+                first_line = buf.items[0..i];
+                break;
+            }
+        }
+
+        return Response{
+            .buf = buf,
+            ._status_line = first_line,
+        };
+    }
 
     pub fn deinit(self: Response) void {
         self.buf.deinit();
@@ -109,6 +126,18 @@ pub const Response = struct {
 
     pub fn raw(self: Response) []u8 {
         return self.buf.items;
+    }
+
+    pub fn status_line(self: Response) []u8 {
+        return self._status_line;
+    }
+
+    pub fn status_code(self: Response) []u8 {
+        return self.status_line()[9..12];
+    }
+
+    pub fn status(self: Response) []u8 {
+        return self.status_line()[13..self._status_line.len];
     }
 };
 
