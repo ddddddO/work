@@ -13,7 +13,10 @@ pub fn main() anyerror!void {
 
     const client = HttpClient.init(allocator);
     defer client.deinit();
-    const res = try client.req().get(host);
+    const res = try client.req()
+        .setHeader("Accept: text/html")
+        .get(host);
+
     defer res.deinit();
     log.debug("Response!!\n{s}", .{res.raw()});
 }
@@ -35,15 +38,16 @@ pub const HttpClient = struct {
     }
 
     pub fn req(self: HttpClient) Request {
-        _ = self;
         return Request{
             .allocator = self.allocator,
+            .headers = null,
         };
     }
 };
 
 pub const Request = struct {
     allocator: Allocator,
+    headers: ?[]const u8, // TODO: 複数保持
 
     fn get(self: Request, target: []const u8) !Response {
         const tcp_conn = try std.net.tcpConnectToHost(self.allocator, target, 80);
@@ -54,8 +58,12 @@ pub const Request = struct {
         _ = try tcp_conn.write("GET / HTTP/1.1\r\n");
         const host_header = try std.fmt.allocPrint(self.allocator, "Host: {s}\r\n", .{target});
         defer self.allocator.free(host_header);
-
         _ = try tcp_conn.write(host_header);
+
+        if ((self.headers != null) and (self.headers.?.len != 0)) {
+            _ = try tcp_conn.write(self.headers.?);
+            _ = try tcp_conn.write("\r\n");
+        }
         _ = try tcp_conn.write("\r\n");
 
         var buf = std.ArrayList(u8).init(self.allocator);
@@ -84,6 +92,11 @@ pub const Request = struct {
         return Response{
             .buf = buf,
         };
+    }
+
+    fn setHeader(self: *Request, header: []const u8) *Request {
+        self.headers = header;
+        return self;
     }
 };
 
