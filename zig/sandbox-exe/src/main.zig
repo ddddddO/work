@@ -10,6 +10,7 @@ pub fn main() anyerror!void {
     const allocator = std.heap.page_allocator;
     const host = "www.google.com";
     // const host = "www.yahoo.co.jp";
+    // const host = "localhost:8082";
 
     const client = HttpClient.init(allocator);
     const res = try client.req()
@@ -22,4 +23,5 @@ pub fn main() anyerror!void {
     try writer.print("Status Line: {s}\n", .{res.statusLine()});
     try writer.print("Status Code: {s}\n", .{res.statusCode()});
     try writer.print("Status: {s}\n", .{res.status()});
+    try writer.print("{s}", .{res.rawBody()});
 }
