@@ -4,7 +4,7 @@ const log = std.log;
 const Allocator = std.mem.Allocator;
 const Stream = std.net.Stream;
 
-const HttpClient = @import("http-client").HttpClient;
+const HttpClient = @import("zig-http-client").HttpClient;
 
 pub fn main() anyerror!void {
     const allocator = std.heap.page_allocator;

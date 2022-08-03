@@ -12,7 +12,7 @@ pub fn build(b: *std.build.Builder) void {
     const mode = b.standardReleaseOptions();
 
     const exe = b.addExecutable("sandbox-exe", "src/main.zig");
-    exe.addPackagePath("http-client", "libs/zig-http-client/src/main.zig");
+    exe.addPackagePath("zig-http-client", "libs/zig-http-client/src/main.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
     exe.install();
