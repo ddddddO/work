@@ -12,7 +12,6 @@ import {
 
 import myValidation from "./MyValidation";
 import asyncValidate from "./asyncValidation";
-import renderFamilies from "./renderFamilies";
 
 const renderField = 
 ({
@@ -69,11 +68,11 @@ let MyForm = props => {
 
     <Form horizontal onSubmit={handleSubmit}>
       <Field
-        name='name'
+        name='primary_name'
         component={renderField}
         type='text'
         label='お名前'
-        placeholder='ウルトラマン'
+        placeholder='ウルトラ・マン'
       />
       <FormGroup controlId={'contact'}>
         <Col componentClass={'tttemp'} sm={2}>連絡先</Col>
@@ -118,11 +117,10 @@ let MyForm = props => {
           placeholder='08022223333'
         />
       }
-      <FieldArray name='families' component={renderFamilies} />
       <FormGroup>
         <Col smoffset={2} sm={5}>
           <ButtonToolbar>
-            <Button bsstyle={'primary'} type='submit' disabled={pristine || submitting}>登録</Button>
+            <Button bsstyle={'primary'} type='submit' disabled={pristine}>次へ</Button>
             <Button type='button' disabled={pristine || submitting} onClick={reset}>クリア</Button>
           </ButtonToolbar>
         </Col>
@@ -139,8 +137,12 @@ let MyForm = props => {
 
 MyForm = reduxForm({
   form: 'myForm',
+
+  destroyOnUnmount: false,
+  forceUnregisterOnUnmount: true,
+
   validate: myValidation,
-  initialValues: { name: 'だれですか' }, // リロード後、一瞬表示されるが消える
+  initialValues: { primary_name: 'だれですか' },
 
   asyncValidate,
   asyncBlurFields: ['phone'],
