@@ -11,6 +11,8 @@ import {
 } from 'react-bootstrap';
 
 import myValidation from "./MyValidation";
+import asyncValidate from "./asyncValidation";
+import renderFamilies from "./renderFamilies";
 
 const renderField = 
 ({
@@ -116,7 +118,7 @@ let MyForm = props => {
           placeholder='08022223333'
         />
       }
-      {/* NOTE: ここから <FieldArray name='families' component={renderFamilies} /> */}
+      <FieldArray name='families' component={renderFamilies} />
       <FormGroup>
         <Col smoffset={2} sm={5}>
           <ButtonToolbar>
@@ -139,6 +141,9 @@ MyForm = reduxForm({
   form: 'myForm',
   validate: myValidation,
   initialValues: { name: 'だれですか' }, // リロード後、一瞬表示されるが消える
+
+  asyncValidate,
+  asyncBlurFields: ['phone'],
 })(MyForm);
 
 const selector = formValueSelector('myForm');
