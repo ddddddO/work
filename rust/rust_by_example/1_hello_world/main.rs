@@ -45,12 +45,93 @@ fn main() {
       write!(f, "struct details: {}", self.0)
     }
   }
-
   println!("This struct `{}`. Display!", Structure(3));
+  // This struct `struct.i32: 3`. Display!
   println!("This struct `{:?}`. Debug!", Structure(3));
+  // This struct `struct details: 3`. Debug!
 
-  // TODO:
-  // https://doc.rust-jp.rs/rust-by-example-ja/hello/print.html の以下から
-  // println!マクロを追加し、表示される小数部の桁数を調整してPi is roughly 3.142という文字列を出力しましょう。 ただし、円周率の値はlet pi = 3.141592を使ってください。（ヒント: 小数部の桁数を調整する方法については、std::fmtをチェックする必要があるかもしれません。）
+  let pi = 3.141592;
+  println!("Pi is roughly {:.3}", pi);
+  // Pi is roughly 3.142
 
+  println!("{:?} months in a year.", 12);
+  // 12 months in a year.
+  #[derive(Debug)]
+  struct Structure2(i32);
+  #[derive(Debug)]
+  struct Deep(Structure2);
+  println!("Now {:?} will print!", Structure2(3));
+  // Now Structure2(3) will print!
+  println!("Now {:#?} will print!", Structure2(3));
+  // Now Structure2(
+  //     3,
+  // ) will print!
+  println!("Now {:?} will print!", Deep(Structure2(7)));
+  // Now Deep(Structure2(7)) will print!
+  println!("Now {:#?} will print!", Deep(Structure2(7)));
+  // Now Deep(
+  //   Structure2(
+  //       7,
+  //   ),
+  // ) will print!
+
+  struct Complex {
+    real: f64,
+    imag: f64,
+  }
+  impl fmt::Display for Complex {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "{} + {}i", &self.real, &self.imag)
+    }
+  }
+  let complex = Complex{real: 3.3, imag: 7.2};
+  println!("Display: {}", complex);
+  // Display: 3.3 + 7.2i
+  impl fmt::Debug for Complex {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "Complex {{ real: {}, imag: {} }}", &self.real, &self.imag)
+    }
+  }
+  println!("Debug: {:?}", complex);
+  // Debug: Complex { real: 3.3, imag: 7.2 }
+
+  struct List(Vec<i32>);
+  impl fmt::Display for List {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      let vec = &self.0;
+      write!(f, "[")?;
+
+      for (count, v) in vec.iter().enumerate() {
+        if count != 0 { write!(f, ", ")?; }
+        write!(f, "{}: {}", count, v)?;
+      }
+
+      write!(f, "]")
+    }
+  }
+  let v = List(vec![1, 2, 3, 4]);
+  println!("{}", v);
+  // [0: 1, 1: 2, 2: 3, 3: 4]
+
+  struct Color {
+      red: u8,
+      green: u8,
+      blue: u8,
+  }
+  impl fmt::Display for Color {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+      write!(f, "RGB ({r}, {g}, {b}) {r:#02X}{g:02X}{b:02X}",
+        r=&self.red, g=&self.green, b=&self.blue)
+    }
+  }
+  for color in [
+    Color { red: 128, green: 255, blue: 90 },
+    Color { red: 0, green: 3, blue: 254 },
+    Color { red: 0, green: 0, blue: 0 },
+  ].iter() {
+    println!("{}", *color);
+  }
+  // RGB (128, 255, 90) 0x80FF5A
+  // RGB (0, 3, 254) 0x003FE
+  // RGB (0, 0, 0) 0x00000
 }
