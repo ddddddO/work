@@ -1,29 +1,30 @@
 // NOTE: こちらの挙動について確認
 // https://github.com/hnakamur/httpcapt/issues/1
-// どうやら、interface越しに呼ばれるとfor文内で変数に束縛せずにgoroutineで処理できるよう
+// structのフィールドがポインタか値かで変わるよう
 package main
 
 import (
-	"context"
 	"fmt"
 	"time"
 )
 
-type ifHandler interface {
-	handle(ctx context.Context, result <-chan string)
-}
-
-func run(ifh ifHandler, ctx context.Context, result <-chan string) {
-	ifh.handle(ctx, result)
-}
-
 type multiHandler struct {
+	handlers []handler
+}
+
+func (mh *multiHandler) handle() {
+	for _, h := range mh.handlers {
+		go h.do()
+	}
+}
+
+type multiPointaHandler struct {
 	handlers []*handler
 }
 
-func (mh *multiHandler) handle(ctx context.Context, result <-chan string) {
-	for _, h := range mh.handlers {
-		go h.handle(ctx, result) // TODO: この状態で、各hとなるなめに何が必要なのか？
+func (mph *multiPointaHandler) handle() {
+	for _, h := range mph.handlers {
+		go h.do()
 	}
 }
 
@@ -31,31 +32,31 @@ type handler struct {
 	n int
 }
 
-func (h *handler) handle(_ context.Context, result <-chan string) {
-	<-result
-	time.Sleep(time.Duration(h.n) * time.Second)
+func (h *handler) do() {
 	fmt.Println(h.n)
 }
 
 func main() {
-	a := &handler{n: 1}
-	b := &handler{n: 2}
-	c := &handler{n: 3}
-	hs := []*handler{a, b, c}
-	mh := &multiHandler{handlers: hs}
+	a := handler{n: 1}
+	b := handler{n: 2}
+	c := handler{n: 3}
 
-	ctx := context.Background()
-	result := make(chan string)
+	mh := &multiHandler{handlers: []handler{a, b, c}}
+	mh.handle()
+	time.Sleep(1 * time.Second)
 
-	run(mh, ctx, result)
-	result <- "aaa"
-	result <- "aaa"
-	result <- "aaa"
+	fmt.Println("-------")
 
-	time.Sleep(4 * time.Second)
-	fmt.Println("end!")
+	mph := &multiPointaHandler{handlers: []*handler{&a, &b, &c}}
+	mph.handle()
+	time.Sleep(1 * time.Second)
+
+	// output:
+	// 3
+	// 3
+	// 3
+	// -------
+	// 3
 	// 1
 	// 2
-	// 3
-	// end!
 }
