@@ -9,16 +9,19 @@ main = do
   print "   Fizz Buzz!   "
   print "----------------"
 
-  let ret1 = fizzBuzz nums  -- ["fizzbuzz","1","2","fizz","4","buzz","fizz","7","8","fizz","buzz","11","fizz","13","14","fizzbuzz","16","17","fizz","19","buzz","fizz","22","23","fizz","buzz","26","fizz","28","29","fizzbuzz","31","32","fizz","34","buzz","fizz","37","38","fizz","buzz","41","fizz","43","44","fizzbuzz","46","47","fizz","49","buzz"]
-      ret2 = fizzBuzz' nums -- ["fizzbuzz","1","2","fizz","4","buzz","fizz","7","8","fizz","buzz","11","fizz","13","14","fizzbuzz","16","17","fizz","19","buzz","fizz","22","23","fizz","buzz","26","fizz","28","29","fizzbuzz","31","32","fizz","34","buzz","fizz","37","38","fizz","buzz","41","fizz","43","44","fizzbuzz","46","47","fizz","49","buzz"]
+  -- ["fizzbuzz","1","2","fizz","4","buzz","fizz","7","8","fizz","buzz","11","fizz","13","14","fizzbuzz","16","17","fizz","19","buzz","fizz","22","23","fizz","buzz","26","fizz","28","29","fizzbuzz","31","32","fizz","34","buzz","fizz","37","38","fizz","buzz","41","fizz","43","44","fizzbuzz","46","47","fizz","49","buzz"]
+  let ret1 = fizzBuzz nums
+      ret2 = fizzBuzz' nums
+      ret3 = fizzBuzz'' nums 
 
-  print (ret1)
-  print (ret2)
+  print ret1
+  print ret2
+  print ret3
 
   print "----------------"
   print "      Test      "
   print "----------------"
-  print (if (ret1 == ret2) then "Ok!" else "Fail...")
+  print (if (ret1 == ret2) && (ret3 == ret2) then "Ok!" else "Fail...")
 
 fizzBuzz :: [Int] -> [String]
 
@@ -48,6 +51,24 @@ fizzBuzz' :: [Int] -> [String]
 
 fizzBuzz' nums =
   map (\a -> if a `mod` 15 == 0 then "fizzbuzz" else if a `mod` 3 == 0 then "fizz" else if a `mod` 5 == 0 then "buzz" else show a) nums
+
+
+fizzBuzz'' :: [Int] -> [String]
+
+fizzBuzz'' nums =
+  let fizz = take (length nums) (cycle [3])
+      buzz = take (length nums) (cycle [5])
+      tupls = zip nums (cycle [""])
+      fizzBuzz = zipFizzBuzz (zipFizzBuzz tupls fizz "fizz") buzz "buzz"
+
+  in
+    map (\tupl -> if snd tupl == "" then show (fst tupl) else snd tupl) fizzBuzz
+
+zipFizzBuzz :: [(Int, String)] -> [Int] -> String -> [(Int, String)]
+
+zipFizzBuzz numTupls fbNums fbMsg =
+  zipWith (\tupl -> \a -> (fst tupl, (snd tupl) ++ (if (fst tupl) `mod` a == 0 then fbMsg else ""))) numTupls fbNums
+
 
 -- etc
 square nums =
