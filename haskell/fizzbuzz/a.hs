@@ -41,11 +41,8 @@ fizzBuzz nums =
     else
       show a | a <- nums]
 
-fizz nums =
-  [a | a <- nums, a `mod` 3 == 0]
-
-buzz nums =
-  [a | a <- nums, a `mod` 5 == 0]
+fizz nums = [a | a <- nums, a `mod` 3 == 0]
+buzz nums = [a | a <- nums, a `mod` 5 == 0]
 
 
 fizzBuzz' :: [Int] -> [String]
@@ -76,25 +73,18 @@ fizzBuzz''' nums =
 
 data FBNum = FBNum Int String
 instance Show FBNum where
-  show (FBNum num str) =
-    if str == "" then show num else str
+  show (FBNum num str) = if str == "" then show num else str
 toString :: FBNum -> String
-toString (FBNum _ str) =
-  str
+toString (FBNum _ str) = str
 toInt :: FBNum -> Int
-toInt (FBNum num _) =
-  num
+toInt (FBNum num _) = num
 toFizzBuzz :: [FBNum] -> (Int, String) -> [FBNum]
 toFizzBuzz fbNums fb =
   map (\a -> if toInt a `mod` (fst fb) == 0 then FBNum (toInt a) ((toString a) ++ (snd fb)) else FBNum (toInt a) (toString a)) fbNums
 toStrings :: [FBNum] -> [String]
-toStrings fbNums =
-  map (\a -> show a) fbNums
+toStrings fbNums = map (\a -> show a) fbNums
 
 
 -- etc
-square nums =
-  map (\a -> a*a) nums
-
-square' nums =
-  [a^2 | a <- nums]
+square nums = map (\a -> a*a) nums
+square' nums = [a^2 | a <- nums]
