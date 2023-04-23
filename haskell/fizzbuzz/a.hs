@@ -23,13 +23,13 @@ main = do
   print "----------------"
   print (if (ret1 == ret2) && (ret3 == ret2) then "Ok!" else "Fail...")
 
+
 fizzBuzz :: [Int] -> [String]
 
 fizzBuzz nums =
   let fizzBuzzNums = [a | a <- fizz nums, b <- buzz nums, a == b]  -- [0,15,30,45]
       fizzNums = [a | a <- fizz nums, not (a `elem` fizzBuzzNums)] -- [3,6,9,12,18,21,24,27,33,36,39,42,48]
       buzzNums = [a | a <- buzz nums, not (a `elem` fizzBuzzNums)] -- [5,10,20,25,35,40,50]
-
   in
     [if a `elem` fizzBuzzNums
       then "fizzbuzz"
@@ -56,18 +56,17 @@ fizzBuzz' nums =
 fizzBuzz'' :: [Int] -> [String]
 
 fizzBuzz'' nums =
-  let fizz = take (length nums) (cycle [3])
-      buzz = take (length nums) (cycle [5])
-      tupls = zip nums (cycle [""])
-      fizzBuzz = zipFizzBuzz (zipFizzBuzz tupls fizz "fizz") buzz "buzz"
-
+  let initTupls = zip nums (cycle [""])
+      fizzBuzz = zipFizzBuzz (zipFizzBuzz initTupls (3, "fizz")) (5, "buzz")
   in
     map (\tupl -> if snd tupl == "" then show (fst tupl) else snd tupl) fizzBuzz
 
-zipFizzBuzz :: [(Int, String)] -> [Int] -> String -> [(Int, String)]
+zipFizzBuzz :: [(Int, String)] -> (Int, String) -> [(Int, String)]
 
-zipFizzBuzz numTupls fbNums fbMsg =
-  zipWith (\tupl -> \a -> (fst tupl, (snd tupl) ++ (if (fst tupl) `mod` a == 0 then fbMsg else ""))) numTupls fbNums
+zipFizzBuzz numTupls fb =
+  let fbNums = take (length numTupls) (cycle [fst fb])
+  in
+    zipWith (\tupl -> \a -> (fst tupl, (snd tupl) ++ (if (fst tupl) `mod` a == 0 then snd fb else ""))) numTupls fbNums
 
 
 -- etc
