@@ -52,13 +52,13 @@ fizzBuzz''' nums =
 
 data FBNum = FBNum Int String
 instance Show FBNum where
-  show (FBNum num str) = if str == "" then show num else str
-toString :: FBNum -> String
-toString (FBNum _ str) = str
-toInt :: FBNum -> Int
-toInt (FBNum num _) = num
+  show (FBNum num msg) = if msg == "" then show num else msg
+getMsg :: FBNum -> String
+getMsg (FBNum _ msg) = msg
+getNum :: FBNum -> Int
+getNum (FBNum num _) = num
 toFizzBuzz :: [FBNum] -> (Int, String) -> [FBNum]
 toFizzBuzz fbNums fb =
-  map (\a -> if toInt a `mod` (fst fb) == 0 then FBNum (toInt a) ((toString a) ++ (snd fb)) else FBNum (toInt a) (toString a)) fbNums
+  map (\a -> if getNum a `mod` (fst fb) == 0 then FBNum (getNum a) ((getMsg a) ++ (snd fb)) else FBNum (getNum a) (getMsg a)) fbNums
 toStrings :: [FBNum] -> [String]
 toStrings fbNums = map (\a -> show a) fbNums
