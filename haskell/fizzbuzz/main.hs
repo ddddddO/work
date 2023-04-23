@@ -1,7 +1,7 @@
 import FizzBuzz
 
 -- $ ghci
--- ghci> :l a.hs b.hs
+-- ghci> :l main.hs fizzbuzz.hs
 -- ghci> main
 main = do
   let max = 50
