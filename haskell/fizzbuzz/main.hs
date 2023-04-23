@@ -22,10 +22,17 @@ main = do
   print ret3
   print ret4
 
+  test [ret1, ret2, ret3, ret4]
+
+
+test :: [[String]] -> IO()
+test rets = do
   print "----------------"
   print "      Test      "
   print "----------------"
-  print (if (ret1 == ret2) && (ret3 == ret2) && (ret4 == ret3) then "Ok!" else "Fail...")
+  
+  let passed = filter (==True) (zipWith (\a -> \b -> a == b) (init rets) (tail rets))
+  print (if length passed == (length rets) - 1 then "Ok!" else "Fail...")
 
 
 -- etc
