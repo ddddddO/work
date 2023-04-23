@@ -74,7 +74,10 @@ fizzBuzz''' nums =
   in
     toStrings fizzBuzz
 
-data FBNum = FBNum Int String deriving Show
+data FBNum = FBNum Int String
+instance Show FBNum where
+  show (FBNum num str) =
+    if str == "" then show num else str
 toString :: FBNum -> String
 toString (FBNum _ str) =
   str
@@ -86,7 +89,7 @@ toFizzBuzz fbNums fb =
   map (\a -> if toInt a `mod` (fst fb) == 0 then FBNum (toInt a) ((toString a) ++ (snd fb)) else FBNum (toInt a) (toString a)) fbNums
 toStrings :: [FBNum] -> [String]
 toStrings fbNums =
-  map (\a -> if toString a == "" then show (toInt a) else toString a) fbNums
+  map (\a -> show a) fbNums
 
 
 -- etc
