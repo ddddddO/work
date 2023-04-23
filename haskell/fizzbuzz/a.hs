@@ -27,7 +27,6 @@ main = do
 
 
 fizzBuzz :: [Int] -> [String]
-
 fizzBuzz nums =
   let fizzBuzzNums = [a | a <- fizz nums, b <- buzz nums, a == b]  -- [0,15,30,45]
       fizzNums = [a | a <- fizz nums, not (a `elem` fizzBuzzNums)] -- [3,6,9,12,18,21,24,27,33,36,39,42,48]
@@ -50,13 +49,11 @@ buzz nums =
 
 
 fizzBuzz' :: [Int] -> [String]
-
 fizzBuzz' nums =
   map (\a -> if a `mod` 15 == 0 then "fizzbuzz" else if a `mod` 3 == 0 then "fizz" else if a `mod` 5 == 0 then "buzz" else show a) nums
 
 
 fizzBuzz'' :: [Int] -> [String]
-
 fizzBuzz'' nums =
   let initTupls = zip nums (cycle [""])
       fizzBuzz = zipFizzBuzz (zipFizzBuzz initTupls (3, "fizz")) (5, "buzz")
@@ -64,7 +61,6 @@ fizzBuzz'' nums =
     map (\tupl -> if snd tupl == "" then show (fst tupl) else snd tupl) fizzBuzz
 
 zipFizzBuzz :: [(Int, String)] -> (Int, String) -> [(Int, String)]
-
 zipFizzBuzz numTupls fb =
   let fbNums = take (length numTupls) (cycle [fst fb])
   in
@@ -72,7 +68,6 @@ zipFizzBuzz numTupls fb =
 
 
 fizzBuzz''' :: [Int] -> [String]
-
 fizzBuzz''' nums =
   let initNums = map (\a -> FBNum a "") nums
       fizzBuzz = toFizzBuzz (toFizzBuzz initNums (3, "fizz")) (5, "buzz")
