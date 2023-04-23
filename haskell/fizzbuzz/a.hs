@@ -12,16 +12,18 @@ main = do
   -- ["fizzbuzz","1","2","fizz","4","buzz","fizz","7","8","fizz","buzz","11","fizz","13","14","fizzbuzz","16","17","fizz","19","buzz","fizz","22","23","fizz","buzz","26","fizz","28","29","fizzbuzz","31","32","fizz","34","buzz","fizz","37","38","fizz","buzz","41","fizz","43","44","fizzbuzz","46","47","fizz","49","buzz"]
   let ret1 = fizzBuzz nums
       ret2 = fizzBuzz' nums
-      ret3 = fizzBuzz'' nums 
+      ret3 = fizzBuzz'' nums
+      ret4 = fizzBuzz''' nums
 
   print ret1
   print ret2
   print ret3
+  print ret4
 
   print "----------------"
   print "      Test      "
   print "----------------"
-  print (if (ret1 == ret2) && (ret3 == ret2) then "Ok!" else "Fail...")
+  print (if (ret1 == ret2) && (ret3 == ret2) && (ret4 == ret3) then "Ok!" else "Fail...")
 
 
 fizzBuzz :: [Int] -> [String]
@@ -67,6 +69,29 @@ zipFizzBuzz numTupls fb =
   let fbNums = take (length numTupls) (cycle [fst fb])
   in
     zipWith (\tupl -> \a -> (fst tupl, (snd tupl) ++ (if (fst tupl) `mod` a == 0 then snd fb else ""))) numTupls fbNums
+
+
+fizzBuzz''' :: [Int] -> [String]
+
+fizzBuzz''' nums =
+  let initNums = map (\a -> FBNum a "") nums
+      fizzBuzz = toFizzBuzz (toFizzBuzz initNums (3, "fizz")) (5, "buzz")
+  in
+    toStrings fizzBuzz
+
+data FBNum = FBNum Int String deriving Show
+toString :: FBNum -> String
+toString (FBNum _ str) =
+  str
+toInt :: FBNum -> Int
+toInt (FBNum num _) =
+  num
+toFizzBuzz :: [FBNum] -> (Int, String) -> [FBNum]
+toFizzBuzz fbNums fb =
+  map (\a -> if toInt a `mod` (fst fb) == 0 then FBNum (toInt a) ((toString a) ++ (snd fb)) else FBNum (toInt a) (toString a)) fbNums
+toStrings :: [FBNum] -> [String]
+toStrings fbNums =
+  map (\a -> if toString a == "" then show (toInt a) else toString a) fbNums
 
 
 -- etc
