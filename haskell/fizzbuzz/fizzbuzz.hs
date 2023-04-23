@@ -31,8 +31,8 @@ fizzBuzz' nums =
 
 fizzBuzz'' :: [Int] -> [String]
 fizzBuzz'' nums =
-  let initTupls = zip nums (cycle [""])
-      fizzBuzz = zipFizzBuzz (zipFizzBuzz initTupls (3, "fizz")) (5, "buzz")
+  let initializedTupls = zip nums (cycle [""])
+      fizzBuzz = zipFizzBuzz (zipFizzBuzz initializedTupls (3, "fizz")) (5, "buzz")
   in
     map (\tupl -> if snd tupl == "" then show (fst tupl) else snd tupl) fizzBuzz
 
@@ -45,8 +45,8 @@ zipFizzBuzz numTupls fb =
 
 fizzBuzz''' :: [Int] -> [String]
 fizzBuzz''' nums =
-  let initNums = map (\a -> FBNum a "") nums
-      fizzBuzz = toFizzBuzz (toFizzBuzz initNums (3, "fizz")) (5, "buzz")
+  let initializedNums = map (\a -> FBNum a "") nums
+      fizzBuzz = toFizzBuzz (toFizzBuzz initializedNums (3, "fizz")) (5, "buzz")
   in
     toStrings fizzBuzz
 
