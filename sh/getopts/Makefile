@@ -1,0 +1,2 @@
+lint:
+	shellcheck csv.sh
