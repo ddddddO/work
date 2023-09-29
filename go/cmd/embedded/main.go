@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/ddddddO/work/cmd/embedded/lib"
+	// "github.com/ddddddO/work/cmd/embedded/lib"
 )
 
 func main() {

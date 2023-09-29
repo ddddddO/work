@@ -1,7 +1,7 @@
 package syscaller
 
 import (
-	"github.com/ddddddO/work/syscaller/file"
+	// "github.com/ddddddO/work/syscaller/file"
 )
 
 type syscaller interface {

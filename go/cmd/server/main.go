@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	tc "github.com/ddddddO/work/tcpconn"
+	// tc "github.com/ddddddO/work/tcpconn"
 )
 
 var (

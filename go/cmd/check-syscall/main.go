@@ -4,9 +4,9 @@ import (
 	"flag"
 	"time"
 
-	"github.com/ddddddO/work/syscaller"
-	"github.com/ddddddO/work/syscaller/file"
-	"github.com/ddddddO/work/syscaller/tcpsocket"
+	// "github.com/ddddddO/work/syscaller"
+	// "github.com/ddddddO/work/syscaller/file"
+	// "github.com/ddddddO/work/syscaller/tcpsocket"
 )
 
 const (

@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/signal"
 
-	tc "github.com/ddddddO/work/tcpconn"
+	// tc "github.com/ddddddO/work/tcpconn"
 )
 
 var (

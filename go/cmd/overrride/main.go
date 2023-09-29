@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/ddddddO/work/cmd/overrride/animal"
+	// "github.com/ddddddO/work/cmd/overrride/animal"
 )
 
 func main() {

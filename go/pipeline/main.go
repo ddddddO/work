@@ -42,7 +42,7 @@ func (s *stages) second(src <-chan int) <-chan int {
 		defer close(dest)
 
 		// Dispatcher
-		workerNum := 10
+		workerNum := 20
 		wg := &sync.WaitGroup{}
 		for i := 0; i < workerNum; i++ {
 			wg.Add(1)
