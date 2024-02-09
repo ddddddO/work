@@ -8,14 +8,15 @@ import (
 func main() {
 	s := []string{"hello", "world", "abcd"}
 	for i, x := range backward(s) {
-    fmt.Println(i, x)
+		fmt.Println(i, x)
 	}
 	// Output:
-	// in backward: abcd
+	// in backward
+	// b: abcd
 	// 2 abcd
-	// in backward: world
+	// b: world
 	// 1 world
-	// in backward: hello
+	// b: hello
 	// 0 hello
 
 	fmt.Println("----------------------------")
@@ -25,13 +26,14 @@ func main() {
 	}
 	// Output:
 	// in pull
-	// in backward: abcd
+	// in backward
+	// b: abcd
 	// 👺< 2 abcd true
 	// XXXXX: abcd
-	// in backward: world
+	// b: world
 	// 👺< 1 world true
 	// XXXXX: world
-	// in backward: hello
+	// b: hello
 	// 👺< 0 hello true
 	// XXXXX: hello
 	// 👺< 0  false
@@ -40,13 +42,15 @@ func main() {
 // https://go.dev/wiki/RangefuncExperiment
 func backward[E any](s []E) func(func(int, E) bool) {
 	return func(yield func(int, E) bool) {
-			for i := len(s)-1; i >= 0; i-- {
-				fmt.Println("in backward:", s[i])
+		fmt.Println("in backward")
 
-				if !yield(i, s[i]) {
-						return
-				}
+		for i := len(s) - 1; i >= 0; i-- {
+			fmt.Println("b:", s[i])
+
+			if !yield(i, s[i]) {
+				return
 			}
+		}
 	}
 }
 
