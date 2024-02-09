@@ -39,7 +39,6 @@ Error: googleapi: Error 403: Kubernetes Engine API has not been used in project 
 - terraform apply　成功
     - cluster 作成に6m30s
     - node-pool 作成に1m30s
-    - 一服できる
 
 ### クラスタの構築ができたので、ローカルからkubectlを使ってk8sをデプロイしていきたい
 - kubectl config get-contexts 実行(WSL)。なにもない。
