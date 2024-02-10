@@ -45,7 +45,7 @@ func main() {
 
 	fmt.Println("----------------------------")
 
-	if err := pipeline(); err != nil {
+	if err := pipelineInPanic(); err != nil {
 		log.Fatal(err)
 	}
 	// Output:
@@ -105,7 +105,7 @@ func pull[E any](seq iter.Seq2[int, E]) iter.Seq[E] {
 	}
 }
 
-func pipeline() (err error) {
+func pipelineInPanic() (err error) {
 	defer func() {
 		e, ok := recover().(error)
 		if ok {
