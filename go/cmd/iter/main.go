@@ -83,8 +83,7 @@ func main() {
 	// END: Hello + world: assembled in stageA: assembled in stageB: assembled in stageC
 	// END:  + iterator!!: assembled in stageA: assembled in stageB: assembled in stageC
 	// END: aaaa + bbbb: assembled in stageA: assembled in stageB: assembled in stageC
-	// END: cccc + : assembled in stageA: assembled in stageB: assembled in stageC
-	// 2024/02/10 12:07:00 error!! from stageB
+	// 2024/02/10 12:47:31 error!! from stageB
 	// exit status 1
 }
 
@@ -301,7 +300,7 @@ func stageB_(iteratorA iter.Seq2[string, error]) iter.Seq2[string, error] {
 		i := 0
 		for {
 			// パイプラインの真ん中のステージで一定以上のiteratorの処理でerrorを発生させる
-			if i > 3 {
+			if i > 2 {
 				yield("", errors.New("error!! from stageB"))
 				return
 			}
