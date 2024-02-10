@@ -45,9 +45,10 @@ func main() {
 
 	fmt.Println("----------------------------")
 
-	if err := pipelineInPanic(); err != nil {
-		log.Fatal(err)
-	}
+	// if err := pipelineInPanic(); err != nil {
+	// 	log.Fatal(err)
+	// }
+
 	// Output:
 	// START: pipeline
 	// END: Hello + world: assembled in stageA: assembled in stageB: assembled in stageC
@@ -71,6 +72,20 @@ func main() {
 	// created by iter.Pull[...] in goroutine 1
 	// 				/usr/local/go/src/iter/iter.go:63 +0x105
 	// exit status 2
+
+	fmt.Println("----------------------------")
+
+	if err := pipeline(); err != nil {
+		log.Fatal(err)
+	}
+	// Output:
+	// START: pipeline
+	// END: Hello + world: assembled in stageA: assembled in stageB: assembled in stageC
+	// END:  + iterator!!: assembled in stageA: assembled in stageB: assembled in stageC
+	// END: aaaa + bbbb: assembled in stageA: assembled in stageB: assembled in stageC
+	// END: cccc + : assembled in stageA: assembled in stageB: assembled in stageC
+	// 2024/02/10 12:07:00 error!! from stageB
+	// exit status 1
 }
 
 // https://go.dev/wiki/RangefuncExperiment
@@ -122,7 +137,7 @@ aaaa
 bbbb
 cccc`
 
-	fmt.Println("START: pipeline")
+	fmt.Println("START: pipelineInPanic")
 	for s := range stageC(stageB(stageA(strings.NewReader(src)))) {
 		fmt.Println("END:", s)
 	}
@@ -221,6 +236,109 @@ func stageC(iteratorB func(func(string) bool)) func(func(string) bool) {
 			}
 			s += ": assembled in stageC"
 			if !yield(s) {
+				return
+			}
+		}
+	}
+}
+
+func pipeline() error {
+	src :=
+		`Hello
+world
+
+iterator!!
+aaaa
+bbbb
+cccc`
+
+	fmt.Println("START: pipeline")
+	for s, err := range stageC_(stageB_(stageA_(strings.NewReader(src)))) {
+		if err != nil {
+			return err
+		}
+		fmt.Println("END:", s)
+	}
+
+	return nil
+}
+
+func stageA_(r io.Reader) iter.Seq2[string, error] {
+	return func(yield func(string, error) bool) {
+		sc := bufio.NewScanner(r)
+		i := 0
+		s := ""
+		for sc.Scan() {
+			i++
+			s += sc.Text()
+			if i%2 == 1 {
+				s += " + "
+				continue
+			}
+
+			s += ": assembled in stageA"
+			if !yield(s, nil) {
+				return
+			}
+			s = ""
+		}
+		s += ": assembled in stageA"
+		if !yield(s, nil) {
+			return
+		}
+		if err := sc.Err(); err != nil {
+			yield("", err)
+			return
+		}
+	}
+}
+
+func stageB_(iteratorA iter.Seq2[string, error]) iter.Seq2[string, error] {
+	return func(yield func(string, error) bool) {
+		p, stop := iter.Pull2(iteratorA)
+		defer stop()
+
+		i := 0
+		for {
+			// パイプラインの真ん中のステージで一定以上のiteratorの処理でerrorを発生させる
+			if i > 3 {
+				yield("", errors.New("error!! from stageB"))
+				return
+			}
+
+			s, err, ok := p()
+			if !ok {
+				return
+			}
+			if err != nil {
+				yield("", err)
+				return
+			}
+			ss := s + ": assembled in stageB"
+			if !yield(ss, nil) {
+				return
+			}
+			i++
+		}
+	}
+}
+
+func stageC_(iteratorB func(func(string, error) bool)) func(func(string, error) bool) {
+	return func(yield func(string, error) bool) {
+		p, stop := iter.Pull2(iteratorB)
+		defer stop()
+
+		for {
+			s, err, ok := p()
+			if !ok {
+				return
+			}
+			if err != nil {
+				yield("", err)
+				return
+			}
+			s += ": assembled in stageC"
+			if !yield(s, nil) {
 				return
 			}
 		}
