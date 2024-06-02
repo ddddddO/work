@@ -56,6 +56,9 @@ struct {
     __uint(max_entries, 1);
 } arp_pkt_count SEC(".maps");
 
+// __sk_buff について
+// https://medium.com/@c0ngwang/understanding-struct-sk-buff-730cf847a722
+
 SEC("tc")
 int show_icmp(struct __sk_buff *skb)
 {
