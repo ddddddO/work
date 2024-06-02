@@ -1,5 +1,8 @@
 - packemonでARPリクエストし、loadしたebpfプログラムのarpCountがupされてることを確認した
 
+- 5a89aff のコミットで、ARPリクエストをdrop出来たことを確認した
+  - 修正前は、packemon の Monitor で表示されてたが、修正後は表示されなくなった。また、修正前後でARPリクエストでarpCountはupされていることも確認
+
 - 実行手順
 
 ```console
