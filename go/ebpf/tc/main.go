@@ -73,19 +73,19 @@ func attachFilter(attachTo string, program *ebpf.Program) error {
 		return fmt.Errorf("could not get interface ID: %w", err)
 	}
 
-	// qdisc := &netlink.GenericQdisc{
-	// 	QdiscAttrs: netlink.QdiscAttrs{
-	// 		LinkIndex: devID.Index,
-	// 		Handle:    netlink.MakeHandle(0xffff, 0),
-	// 		Parent:    netlink.HANDLE_CLSACT,
-	// 	},
-	// 	QdiscType: "clsact",
-	// }
+	qdisc := &netlink.GenericQdisc{
+		QdiscAttrs: netlink.QdiscAttrs{
+			LinkIndex: devID.Index,
+			Handle:    netlink.MakeHandle(0xffff, 0),
+			Parent:    netlink.HANDLE_CLSACT,
+		},
+		QdiscType: "clsact",
+	}
 
-	// err = netlink.QdiscReplace(qdisc)
-	// if err != nil {
-	// 	return fmt.Errorf("could not get replace qdisc: %w", err)
-	// }
+	err = netlink.QdiscReplace(qdisc)
+	if err != nil {
+		return fmt.Errorf("could not get replace qdisc: %w", err)
+	}
 
 	filter := &netlink.BpfFilter{
 		FilterAttrs: netlink.FilterAttrs{
