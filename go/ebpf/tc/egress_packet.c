@@ -78,6 +78,8 @@ int show_icmp(struct __sk_buff *skb)
           if (arp_count) { 
               __sync_fetch_and_add(arp_count, 1);
           }
+          return TC_ACT_SHOT;
+
         return TC_ACT_OK;
 
     eth = data;
