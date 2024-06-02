@@ -60,7 +60,7 @@ struct {
 // https://medium.com/@c0ngwang/understanding-struct-sk-buff-730cf847a722
 
 SEC("tc")
-int show_icmp(struct __sk_buff *skb)
+int control_egress(struct __sk_buff *skb)
 {
     void *data_end = (void *)(__u64)skb->data_end;
     void *data = (void *)(__u64)skb->data;

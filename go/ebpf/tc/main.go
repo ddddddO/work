@@ -30,7 +30,7 @@ func main() {
 	}
 	defer objs.Close()
 
-	if err := attachFilter("eth0", objs.egress_packetPrograms.ShowIcmp); err != nil {
+	if err := attachFilter("eth0", objs.egress_packetPrograms.ControlEgress); err != nil {
 		log.Fatal("Failed to attach:", err)
 	}
 

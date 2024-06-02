@@ -53,7 +53,7 @@ type egress_packetSpecs struct {
 //
 // It can be passed ebpf.CollectionSpec.Assign.
 type egress_packetProgramSpecs struct {
-	ShowIcmp *ebpf.ProgramSpec `ebpf:"show_icmp"`
+	ControlEgress *ebpf.ProgramSpec `ebpf:"control_egress"`
 }
 
 // egress_packetMapSpecs contains maps before they are loaded into the kernel.
@@ -98,12 +98,12 @@ func (m *egress_packetMaps) Close() error {
 //
 // It can be passed to loadEgress_packetObjects or ebpf.CollectionSpec.LoadAndAssign.
 type egress_packetPrograms struct {
-	ShowIcmp *ebpf.Program `ebpf:"show_icmp"`
+	ControlEgress *ebpf.Program `ebpf:"control_egress"`
 }
 
 func (p *egress_packetPrograms) Close() error {
 	return _Egress_packetClose(
-		p.ShowIcmp,
+		p.ControlEgress,
 	)
 }
 
