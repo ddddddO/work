@@ -14,7 +14,7 @@
 #include <bpf/bpf_tracing.h>
 
 #define TC_ACT_OK 0
-#define TC_ACT_SHOT -1
+#define TC_ACT_SHOT 2
 #define ETH_P_IP 0x0800
 #define ETH_P_ARP 0x0806
 #define MAX_ENTRIES 64
