@@ -1,6 +1,7 @@
 - packemonでARPリクエストし、loadしたebpfプログラムのarpCountがupされてることを確認した
 
 - 394c007 のコミットで、ARPリクエストをdrop出来たことを確認した
+  - egress_packet.c の `return TC_ACT_SHOT;` のコメントアウトを外して実行で
   - 修正前は、packemon の Monitor で表示されてたが、修正後は表示されなくなった。また、修正前後でARPリクエストでarpCountはupされていることも確認
 
 - 実行手順
