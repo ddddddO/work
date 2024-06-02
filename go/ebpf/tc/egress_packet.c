@@ -75,10 +75,10 @@ int show_icmp(struct __sk_buff *skb)
     // やっぱskb自体がethernetフレームなんでは
     if (skb->protocol != bpf_htons(ETH_P_IP))
         if (skb->protocol == bpf_htons(ETH_P_ARP))
-          if (arp_count) { 
-              __sync_fetch_and_add(arp_count, 1);
-          }
-          return TC_ACT_SHOT;
+            if (arp_count) { 
+                __sync_fetch_and_add(arp_count, 1);
+            }
+            // return TC_ACT_SHOT;
 
         return TC_ACT_OK;
 
@@ -91,10 +91,10 @@ int show_icmp(struct __sk_buff *skb)
     if ((void *)(iph + 1) > data_end)
         return TC_ACT_OK;
 
-    if (bpf_ntohs(eth->h_proto) == ETH_P_ARP)
-        if (arp_count) { 
-            __sync_fetch_and_add(arp_count, 1); 
-        }
+    // if (bpf_ntohs(eth->h_proto) == ETH_P_ARP)
+    //     if (arp_count) { 
+    //         __sync_fetch_and_add(arp_count, 1); 
+    //     }
 
     if (bpf_ntohs(eth->h_proto) != ETH_P_IP)
         return TC_ACT_OK;

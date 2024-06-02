@@ -76,8 +76,8 @@ func attachFilter(attachTo string, program *ebpf.Program) error {
 	qdisc := &netlink.GenericQdisc{
 		QdiscAttrs: netlink.QdiscAttrs{
 			LinkIndex: devID.Index,
-			Handle:    netlink.MakeHandle(0xffff, 0),
-			Parent:    netlink.HANDLE_CLSACT,
+			// Handle:    netlink.MakeHandle(0xffff, 0),
+			Parent: netlink.HANDLE_CLSACT,
 		},
 		QdiscType: "clsact",
 	}
