@@ -9,7 +9,7 @@ import (
 	"time"
 
 	// "github.com/cilium/ebpf/link"
-	// "github.com/cilium/ebpf/rlimit"
+	"github.com/cilium/ebpf/rlimit"
 	// "github.com/PraserX/ipconv"
 	"github.com/cilium/ebpf"
 	"github.com/vishvananda/netlink"
@@ -19,9 +19,9 @@ import (
 
 func main() {
 	// Remove resource limits for kernels <5.11.
-	// if err := rlimit.RemoveMemlock(); err != nil {
-	//     log.Fatal("Removing memlock:", err)
-	// }
+	if err := rlimit.RemoveMemlock(); err != nil {
+	    log.Fatal("Removing memlock:", err)
+	}
 
 	// Load the compiled eBPF ELF and load it into the kernel.
 	var objs egress_packetObjects
@@ -29,12 +29,6 @@ func main() {
 		log.Fatal("Loading eBPF objects:", err)
 	}
 	defer objs.Close()
-
-	// ifname := "eth0" // Change this to an interface on your machine.
-	// iface, err := net.InterfaceByName(ifname)
-	// if err != nil {
-	//     log.Fatalf("Getting interface %s: %s", ifname, err)
-	// }
 
 	if err := attachFilter("eth0", objs.egress_packetPrograms.ShowIcmp); err != nil {
 		log.Fatal("Failed to attach:", err)
