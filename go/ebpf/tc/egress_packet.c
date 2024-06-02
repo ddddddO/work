@@ -73,40 +73,44 @@ int show_icmp(struct __sk_buff *skb)
     }
 
     // やっぱskb自体がethernetフレームなんでは
-    if (skb->protocol != bpf_htons(ETH_P_IP))
-        if (skb->protocol == bpf_htons(ETH_P_ARP))
+    if (skb->protocol != bpf_htons(ETH_P_IP)) {
+        if (skb->protocol == bpf_htons(ETH_P_ARP)) {
             if (arp_count) { 
                 __sync_fetch_and_add(arp_count, 1);
             }
             // return TC_ACT_SHOT;
-
+        }
         return TC_ACT_OK;
+    }
 
     eth = data;
 
-    if ((void *)(eth + 1) > data_end)
+    if ((void *)(eth + 1) > data_end) {
         return TC_ACT_OK;
+    }
 
     iph = (struct iphdr *)(eth + 1);
-    if ((void *)(iph + 1) > data_end)
+    if ((void *)(iph + 1) > data_end) {
         return TC_ACT_OK;
+    }
 
     // if (bpf_ntohs(eth->h_proto) == ETH_P_ARP)
     //     if (arp_count) { 
     //         __sync_fetch_and_add(arp_count, 1); 
     //     }
 
-    if (bpf_ntohs(eth->h_proto) != ETH_P_IP)
+    if (bpf_ntohs(eth->h_proto) != ETH_P_IP) {
         return TC_ACT_OK;
+    }
 
     bpf_printk("Got IP packet!!: tot_len: %d, ttl: %d", bpf_ntohs(iph->tot_len), iph->ttl);
 
     // key = bpf_ntohl(iph->saddr);
-	  // nextHop = bpf_map_lookup_elem(&redirect_map_ipv4, &key);
+        // nextHop = bpf_map_lookup_elem(&redirect_map_ipv4, &key);
     // if (nextHop == NULL) {
     //     bpf_trace_printk(notfound_str, sizeof(notfound_str), iph->saddr, bpf_ntohl(iph->saddr));
     //     return TC_ACT_OK;
     // }
-    
+
     return TC_ACT_OK;
 }
