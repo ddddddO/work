@@ -71,6 +71,8 @@ int control_egress(struct __sk_buff *skb)
     __u64 *count = bpf_map_lookup_elem(&pkt_count, &key);
     __u64 *arp_count = bpf_map_lookup_elem(&arp_pkt_count, &key);
 
+    bpf_printk("kkkkkkkkkkkboon");
+
     if (count) { 
         __sync_fetch_and_add(count, 1); 
     }

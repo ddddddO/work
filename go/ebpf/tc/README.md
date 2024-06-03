@@ -20,3 +20,11 @@ $ sudo go run .
 $ arping -c 1 8.8.8.8
 ```
 
+- bpf_printk を確認
+
+```console
+# 多分以下は一回きりかな
+$ sudo mount -t debugfs none /sys/kernel/debug
+
+$ sudo cat /sys/kernel/debug/tracing/trace_pipe
+```
