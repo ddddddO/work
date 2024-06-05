@@ -46,6 +46,20 @@ struct iphdr {
 	__be32 daddr;
 };
 
+// https://www.infraexpert.com/study/tcpip8.html
+struct tcphdr {
+	__be16 sport;
+	__be16 dport;
+    __be32 sequence;
+    __be32 acknowladge;
+    __u8 offset: 4;
+    __u8 yoyaku: 3;
+    __be16 controlflg: 9;
+    __be16 window;
+    __be16 checksum;
+    __be16 urg;
+};
+
 char __license[] SEC("license") = "Dual MIT/GPL";
 
 struct {
@@ -71,7 +85,8 @@ int control_egress(struct __sk_buff *skb)
     void *data_end = (void *)(__u64)skb->data_end;
     void *data = (void *)(__u64)skb->data;
     struct ethhdr *eth;
-    struct iphdr *iph; // https://docs.huihoo.com/doxygen/linux/kernel/3.7/structiphdr.html
+    struct iphdr *iph;
+    struct tcphdr *tcph;
 
     __u32 key    = 0; 
     __u64 *count = bpf_map_lookup_elem(&pkt_count, &key);
@@ -124,6 +139,18 @@ int control_egress(struct __sk_buff *skb)
         }
         if (iph->protocol == IP_P_TCP) {
             bpf_printk("TCP");
+
+            tcph = (struct tcphdr *)(iph + 1);
+            if ((void *)(tcph + 1) > data_end) {
+                bpf_printk("c");
+                return TC_ACT_OK;
+            }
+
+            bpf_printk("    sport     : %x", bpf_ntohs(tcph->sport));
+            bpf_printk("    dport     : %x", bpf_ntohs(tcph->dport));
+            bpf_printk("    controlflg: %x", bpf_ntohs(tcph->controlflg));
+            bpf_printk("    controlflg: %x", tcph->controlflg);
+
             return TC_ACT_OK;
         }
 
