@@ -15,7 +15,7 @@
 
 #define TC_ACT_OK 0
 #define TC_ACT_SHOT 2
-#define ETH_P_IP 0x0800
+#define ETH_P_IPv4 0x0800
 #define ETH_P_ARP 0x0806
 #define MAX_ENTRIES 64
 #define AF_INET		2
@@ -65,60 +65,49 @@ int control_egress(struct __sk_buff *skb)
     void *data_end = (void *)(__u64)skb->data_end;
     void *data = (void *)(__u64)skb->data;
     struct ethhdr *eth;
-    struct iphdr *iph;
+    struct iphdr *iph; // https://docs.huihoo.com/doxygen/linux/kernel/3.7/structiphdr.html
 
     __u32 key    = 0; 
     __u64 *count = bpf_map_lookup_elem(&pkt_count, &key);
     __u64 *arp_count = bpf_map_lookup_elem(&arp_pkt_count, &key);
 
-    bpf_printk("kkkkkkkkkkkboon");
-    bpf_printk("proto: %x", skb->protocol);
-    bpf_printk("data: %x", skb->data);
-    bpf_printk("data_end: %x", skb->data_end);
+    // bpf_printk("proto: %x", skb->protocol);
+    // bpf_printk("data: %x", skb->data);
+    // bpf_printk("data_end: %x", skb->data_end);
 
     if (count) { 
         __sync_fetch_and_add(count, 1); 
     }
 
-    // やっぱskb自体がethernetフレームなんでは
-    if (skb->protocol != bpf_htons(ETH_P_IP)) {
-        if (skb->protocol == bpf_htons(ETH_P_ARP)) {
-            if (arp_count) { 
-                __sync_fetch_and_add(arp_count, 1);
-            }
-            // return TC_ACT_SHOT;
-        }
-        return TC_ACT_OK;
-    }
-
     eth = data;
-
     if ((void *)(eth + 1) > data_end) {
+        bpf_printk("a");
         return TC_ACT_OK;
     }
 
     iph = (struct iphdr *)(eth + 1);
     if ((void *)(iph + 1) > data_end) {
+        bpf_printk("b");
         return TC_ACT_OK;
     }
 
-    // if (bpf_ntohs(eth->h_proto) == ETH_P_ARP)
-    //     if (arp_count) { 
-    //         __sync_fetch_and_add(arp_count, 1); 
-    //     }
-
-    if (bpf_ntohs(eth->h_proto) != ETH_P_IP) {
+    if (bpf_ntohs(eth->h_proto) == ETH_P_ARP) {
+        bpf_printk("Ether Type: ARP");
+        if (arp_count) { 
+            __sync_fetch_and_add(arp_count, 1); 
+        }
+        // return TC_ACT_SHOT;
         return TC_ACT_OK;
     }
 
-    bpf_printk("Got IP packet!!: tot_len: %d, ttl: %d", bpf_ntohs(iph->tot_len), iph->ttl);
-
-    // key = bpf_ntohl(iph->saddr);
-        // nextHop = bpf_map_lookup_elem(&redirect_map_ipv4, &key);
-    // if (nextHop == NULL) {
-    //     bpf_trace_printk(notfound_str, sizeof(notfound_str), iph->saddr, bpf_ntohl(iph->saddr));
-    //     return TC_ACT_OK;
-    // }
+    if (bpf_ntohs(eth->h_proto) == ETH_P_IPv4) {
+        bpf_printk("Ether Type  : IP");
+        bpf_printk("    tot_len : %d", bpf_ntohs(iph->tot_len));
+        bpf_printk("    ttl     : %d", iph->ttl);
+        bpf_printk("    dst     : %+x", bpf_ntohl(iph->daddr));
+        bpf_printk("    src     : %+x", bpf_ntohl(iph->saddr));
+        return TC_ACT_OK;
+    }
 
     return TC_ACT_OK;
 }
