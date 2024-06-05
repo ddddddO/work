@@ -15,8 +15,14 @@
 
 #define TC_ACT_OK 0
 #define TC_ACT_SHOT 2
+
 #define ETH_P_IPv4 0x0800
 #define ETH_P_ARP 0x0806
+
+#define IP_P_ICMP 0x01
+#define IP_P_TCP 0x06
+#define IP_P_UDP 0x17
+
 #define MAX_ENTRIES 64
 #define AF_INET		2
 
@@ -104,8 +110,23 @@ int control_egress(struct __sk_buff *skb)
         bpf_printk("Ether Type  : IP");
         bpf_printk("    tot_len : %d", bpf_ntohs(iph->tot_len));
         bpf_printk("    ttl     : %d", iph->ttl);
-        bpf_printk("    dst     : %+x", bpf_ntohl(iph->daddr));
-        bpf_printk("    src     : %+x", bpf_ntohl(iph->saddr));
+        bpf_printk("    protocol: %x", iph->protocol);
+        bpf_printk("    dst     : %x", bpf_ntohl(iph->daddr));
+        bpf_printk("    src     : %x", bpf_ntohl(iph->saddr));
+
+        if (iph->protocol == IP_P_ICMP) {
+            bpf_printk("ICMP");
+            return TC_ACT_OK;
+        }
+        if (iph->protocol == IP_P_UDP) {
+            bpf_printk("UDP");
+            return TC_ACT_OK;
+        }
+        if (iph->protocol == IP_P_TCP) {
+            bpf_printk("TCP");
+            return TC_ACT_OK;
+        }
+
         return TC_ACT_OK;
     }
 
