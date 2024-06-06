@@ -158,13 +158,13 @@ int control_egress(struct __sk_buff *skb)
 
             if (tcph->controlflg == TCP_FLG_RST_ACK) {
                 bpf_printk("TCP RST-ACK");
-                return TC_ACT_SHOT;
-                // return TC_ACT_OK;
+                // return TC_ACT_SHOT;
+                return TC_ACT_OK;
             }
             if (tcph->controlflg == TCP_FLG_RST) {
                 bpf_printk("TCP RST");
-                return TC_ACT_SHOT;
-                // return TC_ACT_OK;
+                // return TC_ACT_SHOT;
+                return TC_ACT_OK;
             }
 
             return TC_ACT_OK;
