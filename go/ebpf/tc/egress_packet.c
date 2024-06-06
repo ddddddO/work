@@ -23,6 +23,11 @@
 #define IP_P_TCP 0x06
 #define IP_P_UDP 0x17
 
+// Wireshark観察する限りはそうだが要fix
+#define TCP_FLG_RST_ACK 0x29
+// bpfのlog観察する限りはそうだが要fix
+#define TCP_FLG_RST 0x8
+
 #define MAX_ENTRIES 64
 #define AF_INET		2
 
@@ -150,6 +155,17 @@ int control_egress(struct __sk_buff *skb)
             bpf_printk("    dport     : %x", bpf_ntohs(tcph->dport));
             bpf_printk("    controlflg: %x", bpf_ntohs(tcph->controlflg));
             bpf_printk("    controlflg: %x", tcph->controlflg);
+
+            if (tcph->controlflg == TCP_FLG_RST_ACK) {
+                bpf_printk("TCP RST-ACK");
+                return TC_ACT_SHOT;
+                // return TC_ACT_OK;
+            }
+            if (tcph->controlflg == TCP_FLG_RST) {
+                bpf_printk("TCP RST");
+                return TC_ACT_SHOT;
+                // return TC_ACT_OK;
+            }
 
             return TC_ACT_OK;
         }
