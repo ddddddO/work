@@ -8,9 +8,7 @@ import (
 	"os/signal"
 	"time"
 
-	// "github.com/cilium/ebpf/link"
 	"github.com/cilium/ebpf/rlimit"
-	// "github.com/PraserX/ipconv"
 	"github.com/cilium/ebpf"
 	"github.com/vishvananda/netlink"
 
@@ -30,7 +28,7 @@ func main() {
 	}
 	defer objs.Close()
 
-	filter, err := attachFilter("eth0", objs.egress_packetPrograms.ControlEgress)
+	qdisc, err := attachFilter("eth0", objs.egress_packetPrograms.ControlEgress)
 	if err != nil {
 		log.Fatal("Failed to attach:", err)
 	}
@@ -57,9 +55,9 @@ func main() {
 		case <-stop:
 			log.Print("Received signal, exiting..")
 
-			// TODO: 下で「no such file or directory」になる
-			if err := netlink.FilterDel(filter); err != nil {
-				log.Fatalf("Failed to FilterDel. Please PC reboot... Error: %s\n", err)
+			// 以下で消しておかないと、再起動やtcコマンド使わない限り、RSTパケットがカーネルから送信されない状態になる
+			if err := netlink.QdiscDel(qdisc); err != nil {
+				log.Fatalf("Failed to QdiscAdd. Please PC reboot... Error: %s\n", err)
 			}
 			return
 		}
@@ -67,7 +65,7 @@ func main() {
 }
 
 // https://github.com/fedepaol/tc-return/blob/main/main.go
-func attachFilter(attachTo string, program *ebpf.Program) (*netlink.BpfFilter, error) {
+func attachFilter(attachTo string, program *ebpf.Program) (*netlink.GenericQdisc, error) {
 	devID, err := net.InterfaceByName(attachTo)
 	if err != nil {
 		return nil, fmt.Errorf("could not get interface ID: %w", err)
@@ -76,7 +74,7 @@ func attachFilter(attachTo string, program *ebpf.Program) (*netlink.BpfFilter, e
 	qdisc := &netlink.GenericQdisc{
 		QdiscAttrs: netlink.QdiscAttrs{
 			LinkIndex: devID.Index,
-			// Handle:    netlink.MakeHandle(0xffff, 0),
+			Handle:    netlink.MakeHandle(0xffff, 0),
 			Parent: netlink.HANDLE_CLSACT,
 		},
 		QdiscType: "clsact",
@@ -103,5 +101,5 @@ func attachFilter(attachTo string, program *ebpf.Program) (*netlink.BpfFilter, e
 		return nil, fmt.Errorf("failed to replace tc filter: %w", err)
 	}
 
-	return filter, nil
+	return qdisc, nil
 }
