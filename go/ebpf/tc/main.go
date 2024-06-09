@@ -20,7 +20,7 @@ import (
 func main() {
 	// Remove resource limits for kernels <5.11.
 	if err := rlimit.RemoveMemlock(); err != nil {
-	    log.Fatal("Removing memlock:", err)
+		log.Fatal("Removing memlock:", err)
 	}
 
 	// Load the compiled eBPF ELF and load it into the kernel.
@@ -30,7 +30,8 @@ func main() {
 	}
 	defer objs.Close()
 
-	if err := attachFilter("eth0", objs.egress_packetPrograms.ControlEgress); err != nil {
+	filter, err := attachFilter("eth0", objs.egress_packetPrograms.ControlEgress)
+	if err != nil {
 		log.Fatal("Failed to attach:", err)
 	}
 
@@ -55,16 +56,21 @@ func main() {
 			log.Printf("ARP Sent %d packets", arpCount)
 		case <-stop:
 			log.Print("Received signal, exiting..")
+
+			// TODO: 下で「no such file or directory」になる
+			if err := netlink.FilterDel(filter); err != nil {
+				log.Fatalf("Failed to FilterDel. Please PC reboot... Error: %s\n", err)
+			}
 			return
 		}
 	}
 }
 
 // https://github.com/fedepaol/tc-return/blob/main/main.go
-func attachFilter(attachTo string, program *ebpf.Program) error {
+func attachFilter(attachTo string, program *ebpf.Program) (*netlink.BpfFilter, error) {
 	devID, err := net.InterfaceByName(attachTo)
 	if err != nil {
-		return fmt.Errorf("could not get interface ID: %w", err)
+		return nil, fmt.Errorf("could not get interface ID: %w", err)
 	}
 
 	qdisc := &netlink.GenericQdisc{
@@ -78,7 +84,7 @@ func attachFilter(attachTo string, program *ebpf.Program) error {
 
 	err = netlink.QdiscReplace(qdisc)
 	if err != nil {
-		return fmt.Errorf("could not get replace qdisc: %w", err)
+		return nil, fmt.Errorf("could not get replace qdisc: %w", err)
 	}
 
 	filter := &netlink.BpfFilter{
@@ -94,7 +100,8 @@ func attachFilter(attachTo string, program *ebpf.Program) error {
 	}
 
 	if err := netlink.FilterReplace(filter); err != nil {
-		return fmt.Errorf("failed to replace tc filter: %w", err)
+		return nil, fmt.Errorf("failed to replace tc filter: %w", err)
 	}
-	return nil
+
+	return filter, nil
 }
