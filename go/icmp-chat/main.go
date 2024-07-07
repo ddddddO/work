@@ -28,6 +28,7 @@ import (
 func main() {
 	var dstIPAddr string
 	description := "specify destination ip address"
+	// TODO: rename "peer"
 	flag.StringVar(&dstIPAddr, "dst", "", description)
 	flag.Parse()
 
@@ -58,8 +59,7 @@ func main() {
 
 	if _, err := c.WriteTo(wb, &net.IPAddr{
 		IP: net.ParseIP(dstIPAddr),
-	},
-	); err != nil {
+	}); err != nil {
 		log.Fatal(err)
 	}
 
@@ -69,6 +69,12 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		if peer.String() != dstIPAddr {
+			log.Printf("received from unknown destination: %s\n", peer)
+			continue
+		}
+
 		const PROTOCOL_NUM_ICMPv4 = 1
 		rm, err := icmp.ParseMessage(PROTOCOL_NUM_ICMPv4, rb[:n])
 		if err != nil {
@@ -79,7 +85,7 @@ func main() {
 			// log.Printf("passive icmp echo reply from %v", peer)
 			// noop
 		case ipv4.ICMPTypeEcho:
-			log.Printf("passive icmp echo from %v", peer)
+			// log.Printf("passive icmp echo from %v", peer)
 
 			b, err := rm.Body.Marshal(PROTOCOL_NUM_ICMPv4)
 			if err != nil {
@@ -87,7 +93,7 @@ func main() {
 				continue
 			}
 
-			log.Printf("data: %x\n", b)
+			// log.Printf("data: %x\n", b)
 			log.Printf("str data: %s\n", string(b))
 		default:
 			log.Printf("got %+v; want echo reply", rm)
