@@ -76,7 +76,8 @@ func main() {
 		}
 		switch rm.Type {
 		case ipv4.ICMPTypeEchoReply:
-			log.Printf("passive icmp echo reply from %v", peer)
+			// log.Printf("passive icmp echo reply from %v", peer)
+			// noop
 		case ipv4.ICMPTypeEcho:
 			log.Printf("passive icmp echo from %v", peer)
 
