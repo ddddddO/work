@@ -1,0 +1,6 @@
+github.com/ddddddO/work/go/plugin-wasm v0.0.0-20241231133225-2d611f33503d h1:I5ukwinZXhfR6MFhNhiGdiNMDGbBgC0PYHgyo357PAY=
+github.com/ddddddO/work/go/plugin-wasm v0.0.0-20241231133225-2d611f33503d/go.mod h1:6AKqkp91mWBSGFiBDZJoQSusw34Oe0/+mHrE+ZuS2VI=
+github.com/ddddddO/work/go/plugin-wasm v0.0.0-20241231135244-e2ffa4215821 h1:pvcriGZBR6Te9gaZfRaVigRNkoGkJ1jBDe5d+wmMcoo=
+github.com/ddddddO/work/go/plugin-wasm v0.0.0-20241231135244-e2ffa4215821/go.mod h1:6AKqkp91mWBSGFiBDZJoQSusw34Oe0/+mHrE+ZuS2VI=
+github.com/tetratelabs/wazero v1.8.2 h1:yIgLR/b2bN31bjxwXHD8a3d+BogigR952csSDdLYEv4=
+github.com/tetratelabs/wazero v1.8.2/go.mod h1:yAI0XTsMBhREkM/YDAK/zNou3GoiAce1P6+rp/wQhjs=

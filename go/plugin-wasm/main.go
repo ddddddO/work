@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"log"
@@ -10,7 +11,7 @@ import (
 
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
-	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
+	wasi "github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 )
 
 const wasmDir = ".plugin-wasm"
@@ -37,7 +38,17 @@ func run() error {
 	ctx := context.Background()
 	r := wazero.NewRuntime(ctx)
 	defer r.Close(ctx)
-	wasi_snapshot_preview1.MustInstantiate(ctx, r)
+	// wasi_snapshot_preview1.MustInstantiate(ctx, r)
+
+	// Instantiate a Go-defined module named "env" that exports functions.
+	envBuilder := r.NewHostModuleBuilder("env")
+	if _, err := envBuilder.Instantiate(ctx); err != nil {
+		return fmt.Errorf("wasm module build error: %w", err)
+	}
+
+	if _, err := wasi.NewBuilder(r).Instantiate(ctx); err != nil {
+		return fmt.Errorf("WASI init error: %w", err)
+	}
 
 	// homeDir, err := os.UserHomeDir()
 	// if err != nil {
@@ -83,17 +94,23 @@ func run() error {
 
 	compileds := []*CompiledProtocol{}
 	for _, wasmCode := range wasmCodes {
-		// dhcp.wasm
-		mod, err := r.Instantiate(ctx, wasmCode)
+		// Compile the WebAssembly module using the default configuration.
+		compiledMod, err := r.CompileModule(ctx, wasmCode)
 		if err != nil {
-			return err
+			return fmt.Errorf("module compile error: %w", err)
 		}
 
-		nameFunc := mod.ExportedFunction("Name")
+		// InstantiateModule runs the "_start" function which is what TinyGo compiles "main" to.
+		mod, err := r.InstantiateModule(ctx, compiledMod, wazero.NewModuleConfig())
+		if err != nil {
+			return fmt.Errorf("module init error: %w", err)
+		}
+
+		nameFunc := mod.ExportedFunction("name")
 		if nameFunc == nil {
 			return fmt.Errorf("required Name function")
 		}
-		portFunc := mod.ExportedFunction("Port")
+		portFunc := mod.ExportedFunction("port")
 		if portFunc == nil {
 			return fmt.Errorf("required Port function")
 		}
@@ -102,6 +119,7 @@ func run() error {
 			mod:    mod,
 			malloc: mod.ExportedFunction("malloc"),
 			free:   mod.ExportedFunction("free"),
+			getStr: mod.ExportedFunction("get_str"),
 			name:   nameFunc,
 			port:   portFunc,
 		}
@@ -111,12 +129,31 @@ func run() error {
 
 	proto := compileds[0] // dhcp.wasm
 
-	results, err := proto.Name(ctx, "9")
+	str, err := proto.GetStr(ctx)
 	if err != nil {
 		return err
 	}
+	fmt.Println("GetStr result:", str)
 
-	fmt.Println("Result:", results[0])
+	name, err := proto.Name(ctx, "DHCP!!")
+	if err != nil {
+		return err
+	}
+	fmt.Println("Name result:", name)
+
+	port, err := proto.Port(ctx)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Port result:", port)
+	// Output:
+	// plugin!
+	// 2024/12/31 23:18:58 wasm directory path: /home/ddddddo/github.com/ddddddO/work/go/plugin-wasm/.plugin-wasm
+	// 2024/12/31 23:18:58 wasm code path: /home/ddddddo/github.com/ddddddO/work/go/plugin-wasm/.plugin-wasm/dhcp.wasm
+	// GetStr result: xxxxxx
+	// Name result: protocol name: DHCP!!
+	//
+	// Port result: 68
 
 	return nil
 }
@@ -126,18 +163,49 @@ type CompiledProtocol struct {
 	malloc api.Function
 	free   api.Function
 
-	name api.Function
-	port api.Function
+	getStr api.Function
+	name   api.Function
+	port   api.Function
 }
 
-func (c *CompiledProtocol) Name(ctx context.Context, x string) ([]uint64, error) {
+func (c *CompiledProtocol) GetStr(ctx context.Context) (string, error) {
+	results, err := c.getStr.Call(ctx)
+	if err != nil {
+		return "", err
+	}
+	str, err := ptrSizeToString(c.mod.Memory(), results[0])
+	if err != nil {
+		return "", err
+	}
+	return str, nil
+}
+
+func (c *CompiledProtocol) Name(ctx context.Context, x string) (string, error) {
 	inputPtr, size, err := stringToPtrSize(ctx, x, c.mod, c.malloc)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer c.free.Call(ctx, inputPtr)
 
-	return c.name.Call(ctx, inputPtr, size)
+	results, err := c.name.Call(ctx, inputPtr, size)
+	if err != nil {
+		return "", err
+	}
+
+	var ret string
+	if err = unmarshal(c.mod.Memory(), results[0], &ret); err != nil {
+		return "", fmt.Errorf("invalid return value: %w", err)
+	}
+
+	return ret, nil
+}
+
+func (c *CompiledProtocol) Port(ctx context.Context) (uint64, error) {
+	results, err := c.port.Call(ctx)
+	if err != nil {
+		return 0, err
+	}
+	return results[0], nil
 }
 
 // copied: https://github.com/aquasecurity/trivy/blob/e8085bae3e71fc5c9839feb13e34b75deba4ce9d/pkg/module/module.go#L209
@@ -157,4 +225,63 @@ func stringToPtrSize(ctx context.Context, s string, mod api.Module, malloc api.F
 	}
 
 	return ptr, size, nil
+}
+
+func ptrSizeToString(mem api.Memory, ptrSize uint64) (string, error) {
+	ptr, size := splitPtrSize(ptrSize)
+	buf := readMemory(mem, ptr, size)
+	if buf == nil {
+		return "", fmt.Errorf("unable to read memory")
+	}
+	return string(buf), nil
+}
+
+func splitPtrSize(u uint64) (uint32, uint32) {
+	ptr := uint32(u >> 32)
+	size := uint32(u)
+	return ptr, size
+}
+
+func readMemory(mem api.Memory, offset, size uint32) []byte {
+	buf, ok := mem.Read(offset, size)
+	if !ok {
+		log.Printf("Memory.Read() out of range: offset: %d, size: %d", int(offset), int(size))
+		return nil
+	}
+	return buf
+}
+
+func marshal(ctx context.Context, m api.Module, malloc api.Function, v any) (uint64, uint64, error) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		return 0, 0, fmt.Errorf("marshal error: %w", err)
+	}
+
+	size := uint64(len(b))
+	results, err := malloc.Call(ctx, size)
+	if err != nil {
+		return 0, 0, fmt.Errorf("malloc error: %w", err)
+	}
+
+	// The pointer is a linear memory offset, which is where we write the marshaled value.
+	ptr := results[0]
+	if !m.Memory().Write(uint32(ptr), b) {
+		return 0, 0, fmt.Errorf("Memory.Write(%d, %d) out of range of memory size %d",
+			ptr, size, m.Memory().Size())
+	}
+
+	return ptr, size, nil
+}
+
+func unmarshal(mem api.Memory, ptrSize uint64, v any) error {
+	ptr, size := splitPtrSize(ptrSize)
+	buf := readMemory(mem, ptr, size)
+	if buf == nil {
+		return fmt.Errorf("unable to read memory")
+	}
+	if err := json.Unmarshal(buf, v); err != nil {
+		return fmt.Errorf("unmarshal error: %w", err)
+	}
+
+	return nil
 }

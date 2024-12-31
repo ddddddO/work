@@ -2,18 +2,24 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/ddddddO/work/go/plugin-wasm/contract"
 )
 
 type DHCP struct{}
 
-//export Name
-func (*DHCP) Name(x string) string {
+func (d DHCP) GetStr() string {
+	return "xxxxxx"
+}
+
+func (d DHCP) Name(x string) string {
 	return fmt.Sprintf("protocol name: %s\n", x)
 }
 
-//export Port
-func (*DHCP) Port() uint64 {
+func (d DHCP) Port() uint64 {
 	return 68
 }
 
-func main() {}
+func main() {
+	contract.Register(DHCP{})
+}
