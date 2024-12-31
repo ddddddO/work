@@ -30,21 +30,6 @@ func main() {
 }
 
 func run() error {
-	ctx := context.Background()
-	r := wazero.NewRuntime(ctx)
-	defer r.Close(ctx)
-	// wasi_snapshot_preview1.MustInstantiate(ctx, r)
-
-	// Instantiate a Go-defined module named "env" that exports functions.
-	envBuilder := r.NewHostModuleBuilder("env")
-	if _, err := envBuilder.Instantiate(ctx); err != nil {
-		return fmt.Errorf("wasm module build error: %w", err)
-	}
-
-	if _, err := wasi.NewBuilder(r).Instantiate(ctx); err != nil {
-		return fmt.Errorf("WASI init error: %w", err)
-	}
-
 	// homeDir, err := os.UserHomeDir()
 	// if err != nil {
 	// 	return err
@@ -87,8 +72,26 @@ func run() error {
 		return err
 	}
 
+	ctx := context.Background()
 	compileds := []*CompiledProtocol{}
 	for _, wasmCode := range wasmCodes {
+		cache := wazero.NewCompilationCache()
+		// Create an empty namespace so that multiple modules will not conflict
+		r := wazero.NewRuntimeWithConfig(ctx, wazero.NewRuntimeConfig().WithCompilationCache(cache))
+		defer r.Close(ctx)
+		// r := wazero.NewRuntime(ctx)
+		// defer r.Close(ctx)
+
+		// Instantiate a Go-defined module named "env" that exports functions.
+		envBuilder := r.NewHostModuleBuilder("env")
+		if _, err := envBuilder.Instantiate(ctx); err != nil {
+			return fmt.Errorf("wasm module build error: %w", err)
+		}
+
+		if _, err := wasi.NewBuilder(r).Instantiate(ctx); err != nil {
+			return fmt.Errorf("WASI init error: %w", err)
+		}
+
 		// Compile the WebAssembly module using the default configuration.
 		compiledMod, err := r.CompileModule(ctx, wasmCode)
 		if err != nil {
@@ -122,32 +125,40 @@ func run() error {
 		compileds = append(compileds, compiled)
 	}
 
-	proto := compileds[0] // dhcp.wasm
+	for _, proto := range compileds {
+		fmt.Println("-------------------------")
 
-	str, err := proto.GetStr(ctx)
-	if err != nil {
-		return err
-	}
-	fmt.Println("GetStr result:", str)
+		str, err := proto.GetStr(ctx)
+		if err != nil {
+			return err
+		}
+		fmt.Println("GetStr result:", str)
 
-	name, err := proto.Name(ctx, "DHCP!!")
-	if err != nil {
-		return err
-	}
-	fmt.Println("Name result:", name)
+		name, err := proto.Name(ctx, "DHCP!!")
+		if err != nil {
+			return err
+		}
+		fmt.Println("Name result:", name)
 
-	port, err := proto.Port(ctx)
-	if err != nil {
-		return err
+		port, err := proto.Port(ctx)
+		if err != nil {
+			return err
+		}
+		fmt.Println("Port result:", port)
 	}
-	fmt.Println("Port result:", port)
 	// Output:
 	// plugin!
-	// 2024/12/31 23:18:58 wasm directory path: /home/ddddddo/github.com/ddddddO/work/go/plugin-wasm/.plugin-wasm
-	// 2024/12/31 23:18:58 wasm code path: /home/ddddddo/github.com/ddddddO/work/go/plugin-wasm/.plugin-wasm/dhcp.wasm
+	// 2024/12/31 23:54:40 wasm directory path: /home/ddddddo/github.com/ddddddO/work/go/plugin-wasm/.plugin-wasm
+	// 2024/12/31 23:54:40 wasm code path: /home/ddddddo/github.com/ddddddO/work/go/plugin-wasm/.plugin-wasm/dhcp.wasm
+	// 2024/12/31 23:54:40 wasm code path: /home/ddddddo/github.com/ddddddO/work/go/plugin-wasm/.plugin-wasm/imap.wasm
+	// -------------------------
 	// GetStr result: xxxxxx
 	// Name result: protocol name: DHCP!!
 	// Port result: 68
+	// -------------------------
+	// GetStr result: wwwwwwww
+	// Name result: protocol name: IMAP
+	// Port result: 143
 
 	return nil
 }
