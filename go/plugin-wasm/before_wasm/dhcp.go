@@ -13,7 +13,7 @@ func (d DHCP) GetStr() string {
 }
 
 func (d DHCP) Name(x string) string {
-	return fmt.Sprintf("protocol name: %s\n", x)
+	return fmt.Sprintf("protocol name: %s", x)
 }
 
 func (d DHCP) Port() uint64 {

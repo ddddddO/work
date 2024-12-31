@@ -29,11 +29,6 @@ func main() {
 	}
 }
 
-type Protocol interface {
-	Name(x string) string
-	Port() uint64
-}
-
 func run() error {
 	ctx := context.Background()
 	r := wazero.NewRuntime(ctx)
@@ -152,7 +147,6 @@ func run() error {
 	// 2024/12/31 23:18:58 wasm code path: /home/ddddddo/github.com/ddddddO/work/go/plugin-wasm/.plugin-wasm/dhcp.wasm
 	// GetStr result: xxxxxx
 	// Name result: protocol name: DHCP!!
-	//
 	// Port result: 68
 
 	return nil
