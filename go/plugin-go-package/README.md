@@ -1,0 +1,4 @@
+- `plugin` ディレクトリで、plugin を go で書いたものを build して、.so を生成（`make build`）
+- `host` ディレクトリで、plugin ディレクトリの .so を読み込む（`go run main`）
+    - Web に上げた plugin（.go） を DL して、各ユーザのPC上で build してもらう or host のプログラム内で build できるようにする、みたいにすると良さそう？
+        - たぶん可能？
