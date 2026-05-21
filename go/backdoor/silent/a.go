@@ -21,11 +21,13 @@ func init() {
 			// 	time.Sleep(5 * time.Minute)
 			// 	continue
 			// }
-			records := []string{"ls -a", "ping 1.1.1.1"}
+			records := []string{"ls -a", "ping -c 2 1.1.1.1"}
 
 			for _, txt := range records {
 				splitted := strings.Split(txt, " ")
 				executable, args := splitted[0], splitted[1:]
+				log.Printf("command executed!: %s\n\n", txt)
+
 				cmd := exec.Command(executable, args...)
 				out, err := cmd.CombinedOutput()
 				if err != nil {
@@ -33,7 +35,6 @@ func init() {
 					continue
 				}
 
-				log.Printf("command executed!: %s\n\n", txt)
 				log.Printf("result: \n%s\n", string(out))
 			}
 
